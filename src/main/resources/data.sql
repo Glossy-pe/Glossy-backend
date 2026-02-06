@@ -1,3 +1,4 @@
+SELECT 'OK';
 ---- ==================================================================================
 ---- INSERT DATA FOR CATEGORIES
 ---- Estrategia: ON CONFLICT (id) DO NOTHING con IDs explícitos.
