@@ -1,7 +1,7 @@
 spring:
   datasource:
-#    url: jdbc:postgresql://db:5432/glossy-db
-    url: jdbc:postgresql://localhost:5432/ricardoyalico
+    url: jdbc:postgresql://db:5432/glossy-db
+#    url: jdbc:postgresql://localhost:5432/ricardoyalico
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
