@@ -11,7 +11,6 @@ public class ProductRequest {
     private String name;
     private String description;
     private String fullDescription;
-    private BigDecimal basePrice;
     private boolean active = true;
     private String label;
     private Long categoryId;
