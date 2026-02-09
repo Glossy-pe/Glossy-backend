@@ -12,7 +12,20 @@ public class ProductVariantService {
     @Autowired
     private ProductVariantRepository productVariantRepository;
 
-    public ProductVariant save(ProductVariant productVariant) {
+    public ProductVariant create(ProductVariant productVariant) {
         return productVariantRepository.save(productVariant);
     }
+
+    public ProductVariant read(ProductVariant productVariant) {
+        return productVariantRepository.save(productVariant);
+    }
+
+    public ProductVariant update(ProductVariant productVariant) {
+        return productVariantRepository.save(productVariant);
+    }
+
+    public ProductVariant delete(ProductVariant productVariant) {
+        return productVariantRepository.save(productVariant);
+    }
+
 }

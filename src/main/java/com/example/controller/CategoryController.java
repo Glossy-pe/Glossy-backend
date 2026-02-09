@@ -1,15 +1,11 @@
 package com.example.controller;
 
 import com.example.dtos.request.CategoryRequest;
-import com.example.dtos.request.UserRequest;
 import com.example.dtos.response.CategoryResponse;
-import com.example.dtos.response.ProductResponse;
-import com.example.dtos.response.UserResponse;
 import com.example.mapper.CategoryMapper;
-import com.example.mapper.UserMapper;
 import com.example.service.CategoryService;
-import com.example.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,9 +19,9 @@ public class CategoryController {
     @Autowired
     private CategoryMapper categoryMapper;
 
-    @GetMapping("/{id}")
-    public CategoryResponse findById(@PathVariable("id") Long id){
-        return categoryMapper.toResponse(categoryService.findById(id));
+    @GetMapping("/{categoryId}")
+    public CategoryResponse findById(@PathVariable("categoryId") Long categoryId){
+        return categoryMapper.toResponse(categoryService.findById(categoryId));
     }
 
     @PostMapping
@@ -38,5 +34,20 @@ public class CategoryController {
     @GetMapping("")
     public List<CategoryResponse> findAll(){
         return categoryService.findAll().stream().map(categoryMapper::toResponse).toList();
+    }
+
+    // ✅ UPDATE (PATCH)
+    @PatchMapping("/{categoryId}")
+    public CategoryResponse update(@PathVariable Long categoryId, @RequestBody CategoryRequest categoryRequest) {
+        return categoryMapper.toResponse(
+                categoryService.update(categoryId, categoryMapper.toEntity(categoryRequest))
+        );
+    }
+
+    // ✅ DELETE
+    @DeleteMapping("/{categoryId}")
+    public ResponseEntity<Void> delete(@PathVariable Long categoryId) {
+        categoryService.delete(categoryId);
+        return ResponseEntity.noContent().build(); // 204
     }
 }
