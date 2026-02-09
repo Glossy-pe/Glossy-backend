@@ -38,9 +38,15 @@ public class ProductController {
     }
 
     @PostMapping
-    public ProductResponse save(@RequestBody ProductRequest productRequest) {
+    public ProductResponse create(@RequestBody ProductRequest productRequest) {
         Product product = productMapper.toEntity(productRequest);
-        return productMapper.toResponse(productService.save(product));
+        return productMapper.toResponse(productService.create(product));
+    }
+
+    @PutMapping("/{id}")
+    public ProductResponse update(@PathVariable("id") Long productId, @RequestBody ProductRequest productRequest) {
+        Product product = productMapper.toEntity(productRequest);
+        return productMapper.toResponse(productService.update(productId, product));
     }
 
     @PostMapping("/{id}/variants")

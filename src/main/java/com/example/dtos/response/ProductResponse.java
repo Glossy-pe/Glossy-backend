@@ -15,7 +15,6 @@ public class ProductResponse {
     private String description;
     private String fullDescription;
     private List<ProductImageResponse> images= new ArrayList<>();
-    private BigDecimal basePrice;
     private boolean active = true;
     private String label;
     private Long categoryId;

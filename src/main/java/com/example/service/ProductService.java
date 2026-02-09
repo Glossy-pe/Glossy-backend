@@ -6,6 +6,7 @@ import com.example.entity.ProductVariant;
 import com.example.repository.ProductImageRepository;
 import com.example.repository.ProductRepository;
 import com.example.repository.ProductVariantRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,11 +28,25 @@ public class ProductService {
         return productRepository.findById(id).orElseThrow();
     }
 
-    public Product save(Product product) {
+    public Product create(Product product) {
         if (product.getId() != null) {
-            throw new IllegalArgumentException("El id debe ser nulo al crear un producto");
+            throw new IllegalArgumentException("El id debe ser nulo al crear");
         }
         return productRepository.save(product);
+    }
+
+    public Product update(Long id, Product product) {
+        Product existing = productRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Producto no encontrado"));
+
+        existing.setName(product.getName());
+        existing.setDescription(product.getDescription());
+        existing.setFullDescription(product.getFullDescription());
+        existing.setActive(product.isActive());
+        existing.setLabel(product.getLabel());
+        existing.setCategory(product.getCategory());
+
+        return productRepository.save(existing);
     }
 
     public List<Product> findAll(String label){

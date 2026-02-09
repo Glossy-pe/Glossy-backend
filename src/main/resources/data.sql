@@ -1,237 +1,61 @@
+-- ==================================================================================
+-- LIMPIEZA DE DATOS (REINICIO TOTAL)
+-- ==================================================================================
+TRUNCATE TABLE product_image CASCADE;
+TRUNCATE TABLE product_variant CASCADE;
+TRUNCATE TABLE product CASCADE;
+TRUNCATE TABLE category CASCADE;
 
 -- ==================================================================================
--- INSERT DATA FOR CATEGORIES
--- Estrategia: ON CONFLICT (id) DO NOTHING con IDs explícitos.
+-- INSERTAR CATEGORÍAS
+-- Basado en las imágenes proporcionadas para "categories"
 -- ==================================================================================
 INSERT INTO category (id, name, image) VALUES
-(1, 'Fijadores y Removedor', '/images/3508142c-8166-47e2-bd09-4905d1175b8f.jpg'),
-(2, 'Fragancias', '/images/c5572377-20cb-4e56-b5fb-8efd094eb4e9.png'),
-(3, 'Skincare', '/images/3ce1e6b4-2499-4390-8feb-3f2cdb41f67f.png'),
-(4, 'Iluminador', '/images/9582f732-ec5c-41ed-88e3-515b6053e79a.webp'),
-(5, 'Rubor', '/images/a7d95c69-98df-4f6d-83c5-851471b5b13f.jpg'),
-(6, 'Sombras', '/images/45fbf733-21b8-4cf4-9ab7-18fcedf2e752.jpg'),
-(7, 'Labiales', '/images/01837fec-e229-4240-8bd8-d4d287e5db3e.jpg'),
-(8, 'Polvos, corrector y bases', '/images/996fe1ff-82fd-4615-9ec7-7c36c17d95f0.jpg'),
-(9, 'Rimel, delineador y aplicador para cejas', '/images/3508142c-8166-47e2-bd09-4905d1175b8f.jpg'),
-(10, 'Uñas', '/images/c5572377-20cb-4e56-b5fb-8efd094eb4e9.png'),
-(11, 'Accesorios', '/images/c5572377-20cb-4e56-b5fb-8efd094eb4e9.png'),
-(12, 'Extras', '/images/c5572377-20cb-4e56-b5fb-8efd094eb4e9.png')
-ON CONFLICT (id) DO NOTHING;
+(3, 'Skincare', 'http://localhost:8000/images/5/file'),
+(8, 'Polvos, corrector y bases', 'http://localhost:8000/images/5/file'),
+(9, 'Rimel, delineador y aplicador para cejas', 'http://localhost:8000/images/5/file');
 
 -- ==================================================================================
--- INSERT DATA FOR PRODUCTS
--- Los category_id han sido mapeados según la nueva lista de IDs.
+-- INSERTAR PRODUCTOS
 -- ==================================================================================
-INSERT INTO product (id, name, description, full_description, active, category_id)
-VALUES
-(1, 'Base Cushion - Gagk', 'Base cushion coreana con cobertura ligera a media que unifica el tono de la piel dejando un acabo natural y luminoso.', 'Base cushion coreana con cobertura ligera a media que unifica el tono de la piel dejando un acabo natural y luminoso. Su fórmula hidratante se funde fácilmente, proporcionando confort durante todo el día y un look fresco y radiante.', true, 8),
+INSERT INTO product (id, name, description, full_description, active, category_id) VALUES
+(1, 'Base Cushion - Gagk', 'Base cushion coreana con cobertura ligera a media.', 'Base cushion coreana con cobertura ligera a media que unifica el tono de la piel dejando un acabo natural y luminoso.', true, 8),
 (2, 'Brown Set ceja - Revel', 'Define y fija las cejas con un acabado natural.', 'Define y fija las cejas con un acabado natural, manteniéndolas prolijas todo el día.', true, 9),
-(3, 'Corrector - Kevin & Coco', 'Cobertura impecable y acabado natural, ideal para camuflar imperfecciones sin resecar.', 'Cobertura impecable y acabado natural, ideal para camuflar imperfecciones sin resecar. Difumina poros y textura dejando la piel suave y uniforme. Su fórmula hidratante con ácido hialurónico y escualeno no marca líneas y aporta una luminosidad sutil.', true, 8),
-(4, 'Crema Facial de día - Kevin & coco', 'Cobertura ligera con efecto ''segunda piel''.', 'Cobertura ligera con efecto ''segunda piel''.', true, 3),
-(5, 'Delineador y Rimel Kevin & Coco', 'Incluye delineador y rímel para lograr una mirada intensa y definida con facilidad.', 'Incluye delineador y rímel para lograr una mirada intensa y definida con facilidad.', true, 9),
-(6, 'Duo de Rubor y Lipgloss Butterfly', 'Dúo práctico que incluye un lipgloss tipo lip oil y un rubor en crema en tonos cálidos.', 'Dúo práctico que incluye un lipgloss tipo lip oil y un rubor en crema en tonos cálidos y favorecedores. Sus fórmulas son ligeras, fáciles de difuminar y dejan un acabado natural y fresco, ideal para un look diario', true, 5),
-(7, 'Set Labial en barra y lipgloss - Kevin & Coco', 'Duo de labial cremoso pigmentado y gloss ultra-brillante.', 'Duo de labial cremoso pigmentado y gloss ultra-brillante que ofrece color intenso y un acabado efecto glass; se pueden usar juntos o por separado para un look versátil y glamuroso.', true, 7),
-(8, 'Fijador Kevin & Coco', 'Spray fijador ligero que prolonga la duración del maquillaje.', 'Spray fijador ligero que prolonga la duración del maquillaje, controla los brillos y deja la piel fresca con un acabado natural. Ideal para todo tipo de piel, sin sensación pegajosa.', true, 1),
-(9, 'Fijador Kiss Beauty', 'Un spray ligero y eficaz que fija el maquillaje prolongando su duración durante todo el día.', 'Un spray ligero y eficaz que fija el maquillaje prolongando su duración durante todo el día. Su fórmula ayuda a controlar el brillo, manteniendo la piel con un acabado natural, fresco e impecable por horas.', true, 1),
-(10, 'Labial Crystal Kiss Gloss - Kevin & Coco', 'Labial con efecto aterciopelado matte que combina el brillo sutil del gloss.', 'Labial con efecto aterciopelado matte que combina el brillo sutil del gloss con un acabado suave and sofisticado. Aporta color intenso y confort en los labios sin sensación pegajosa, para un look elegante y moderno.', true, 7),
-(11, 'Labial Matte ultra - Kiss Beauty', 'Labial de acabado mate intenso con pigmentación duradera.', 'Labial de acabado mate intenso con pigmentación duradera y textura suave que se desliza fácilmente in los labios. Proporciona un color vibrante y cómodo durante todo el día', true, 7),
-(12, 'Labial Love Lip Gloss efecto matte - Kevin & Coco', 'Lipgloss de larga duración, resistente al agua y a las manchas.', 'Lipgloss de larga duración, resistente al agua y a las manchas. Su fórmula hidratante con aceite de jojoba y vitamina E cuida los labios, mientras aporta un brillo efecto cristal sin sensación pegajosa. Ideal para un look cómodo y duradero.', true, 7),
-(13, 'LIPGLOSS WATER LIP - GAGK', 'Lipgloss que aporta brillo efecto agua y deja los labios suaves y luminosos.', 'Lipgloss que aporta brillo efecto agua y deja los labios suaves y luminosos. Su textura ligera e hidratante se desliza fácilmente, brindando un acabado fresco y jugoso sin sensación pegajosa, ideal para uso diario', true, 7),
-(14, 'Balsamo hidratante de labios - Jelly Pocket Lip Jam', 'Bálsamo con textura suave y jugosa que hidrata y nutre los labios.', 'Bálsamo con textura suave y jugosa que hidrata y nutre los labios, dejando un acabado brillante y saludable. Ideal para uso diario y para mantener los labios suaves y protegidos', true, 7),
-(15, 'Fijador Matificante de arroz - Magic Shop', 'Controla el brillo, absorbe el exceso de grasa y fija tu maquillaje.', 'Controla el brillo, absorbe el exceso de grasa y fija tu maquillaje, dejando un acabado mate natural y suave. Ideal para pieles mixtas o grasas.', true, 1),
-(16, 'Polvo traslucido - Revel', 'Polvo compacto ligero que fija, matifica y deja un acabado natural and suave.', 'Polvo compacto ligero que fija, matifica y deja un acabado natural y suave.', true, 8),
-(17, 'Removedor Biofasico - Kevin & Coco', 'Desmaquillante suave y eficaz que elimina el maquillaje.', 'Desmaquillante suave y eficaz que elimina el maquillaje. Limpia a profundidad y deja el rostro fresco, limpio y confortable. Ideal para uso diario y apto para todo tipo de piel.', true, 1),
-(18, 'Rubor líquido - Dupe de Sheglam - Kevin & Coco', 'Rubor líquido de textura cremosa y acabado mate, altamente pigmentado.', 'Rubor líquido de textura cremosa y acabado mate, altamente pigmentado y de larga duración con sensación liviana en la piel. Incluye aplicador para una aplicación fácil y un acabo natural. Disponible en varios tonos.', true, 5),
-(19, 'Serum 4 en 1 - Blianlian 30 ml', 'Potente sérum facial 4 en 1 formulado con Ácido Hialurónico, Niacinamida y Vitaminas C y E.', 'Potente sérum facial 4 en 1 formulado con Ácido Hialurónico, Niacinamida y Vitaminas C y E, ideal para el cuidado diario de la piel. Ayuda a hidratar profundamente, mejorar la luminosidad, unificar el tono y aportar protección antioxidante, dejando el rostro suave, fresco y revitalizado.', true, 3),
-(20, 'Serum 30 ml - Kevin & coco', 'Sérum facial ligero y de rápida absorción que hidrata, ilumina y mejora la textura de la piel.', 'Sérum facial ligero y de rápida absorción que hidrata, ilumina y mejora la textura de la piel. Ayuda a unificar el tono, suavizar líneas finas y dejar el rostro más fresco y radiante.', true, 3),
-(21, 'Sombras Electric- Lofshe', 'Paleta de sombras con tonos cálidos y vibrantes.', 'Paleta de sombras con tonos cálidos y vibrantes, que combina acabados mate, satinados y glitter para crear looks naturales o intensos.', true, 6),
-(22, 'Labial líquido Matte teddy - YeAhKiss', 'Labial líquido de acabado mate con tono cálido y versátil, inspirado en Teddy de Maybelline.', 'Labial líquido de acabado mate con tono cálido y versátil, inspirado en Teddy de Maybelline. Fórmula pigmentada y duradera que no se transfiere, ideal para un look sofisticado y natural.', true, 7),
-(23, 'Tinta Candela- Nossa', 'Tinta líquida con color intenso y duradero.', 'Tinta líquida con color intenso y duradero que se desliza suavemente en los labios, dejando un acabado vibrante y definido', true, 7),
-(24, 'Tinta The game - Jarusa', 'Tinta líquida con pigmento intenso que ofrece color vibrante y alta duración.', 'Tinta líquida con pigmento intenso que ofrece color vibrante y alta duración. Su fórmula se desliza fácil y fija bien, dejando un acabado definido y duradero en los labios', true, 7),
-(25, 'Uñas press on ojo de gato - Nossa', 'Uñas postizas press-on con diseño ojo de gato que crea un efecto multidimensional y elegante.', 'Uñas postizas press-on con diseño ojo de gato que crea un efecto multidimensional y elegante. Fáciles de aplicar, duraderas y listas para usar, dan un acabado moderno y sofisticado sin necesidad de ir al salón. Perfectas para un look impactante al instante.', true, 10),
-(26, 'Body splash V.V. Love Dupe Sol de Janeiro', 'Fragancias dulces y frutales inspiradas en Sol de Janeiro.', 'Mellow Melody: Fragancia dulce y cálida con notas de chocolate, caramelo y miel. D /Cherry Delight – Fragancia dulce y frutal con notas de cereza/Fruit Symphony - Aroma frutal dulce y jugoso, con notas vibrantes que recuerdan a frutas frescas y caramelizadas.', true, 2),
-(27, 'Labiales - Dorage', 'Colección de 12 labiales en una mezcla de acabados mate y con brillo.', 'Colección de 12 labiales en una mezcla de acabados mate y con brillo, con colores variados para crear looks versátiles.', true, 7),
-(28, 'Mascarilla variado - Bioquia', 'Mascarillas faciales en diferentes versiones según la necesidad de tu piel.', 'Mascarillas faciales en diferentes versiones según la necesidad de tu piel: retinol para revitalizar, avena para calmar, green tea para refrescar y baba de caracol para hidratar y reparar. Dejan la piel suave, fresca y luminosa, ideales para el cuidado diario.', true, 3),
-(29, 'Rubor en barra - Dupe Rhode - M LUNDO', 'Rubor en barra cremoso y retráctil inspirado en el famoso pocket blush de Rhode.', 'Rubor en barra cremoso y retráctil inspirado en el famoso pocket blush de Rhode con pigmentación intensa que se difumina súper fácil para un toque de color natural en tus mejillas.', true, 5),
-(30, 'Kit duo 3 en 1 Iluminador, rubor y sombra - Kevin & Coco', 'Kit versátil 3 en 1 que funciona como iluminador, rubor y sombra.', 'Kit versátil 3 en 1 que funciona como iluminador, rubor y sombra, ideal para crear looks completos con un solo producto. Cada paquete incluye 2 unidades del kit.', true, 4),
-(31, 'Labial mousse barra matte - Italia deluxe', 'Labial en barra con acabado mousse y efecto mate.', 'Labial en barra con acabado mousse y efecto mate, textura ligera y suave que se desliza fácilmente, dejando un color intenso y duradero sin sensación pegajosa. Ideal para un look moderno y elegante. Disponible 23 sweet chocolate', true, 7)
-ON CONFLICT (id) DO NOTHING;
+(3, 'Corrector - Kevin & Coco', 'Cobertura impecable y acabado natural.', 'Ideal para camuflar imperfecciones sin resecar. Difumina poros y textura dejando la piel suave y uniforme.', true, 8),
+(4, 'Crema Facial de día - Kevin & coco', 'Cobertura ligera con efecto "segunda piel".', 'Crema hidratante diaria que aporta luminosidad y protección.', true, 3);
 
 -- ==================================================================================
--- INSERT DATA FOR PRODUCT VARIANTS
+-- INSERTAR PRODUCT VARIANTS (Precios y Stock base)
 -- ==================================================================================
--- [Variantes omitidas por brevedad, se mantienen igual que en la versión previa]
--- ==================================================================================
-
--- ==================================================================================
--- INSERT DATA FOR PRODUCT IMAGES
--- Estructura plana: /images/uuid.ext
--- ==================================================================================
-
--- P1: Base Cushion - Gagk
-INSERT INTO product_image (product_id, url, position, main_image) VALUES
-(1, '/images/7798d619-58e4-43d7-9242-2377507a70f9.png', 1, true),
-(1, '/images/ced6a1ed-5d60-417a-bff8-d8748eacbffe.png', 2, false);
-
--- P2: Brown Set ceja - Revel
-INSERT INTO product_image (product_id, url, position, main_image) VALUES
-(2, '/images/54f6cfdf-0f92-45b4-a7cc-b242bd2eef32.png', 1, true),
-(2, '/images/67fe1b7a-f3f1-4e73-bb28-b12317b46921.png', 2, false);
-
--- P3: Corrector - Kevin & Coco
-INSERT INTO product_image (product_id, url, position, main_image) VALUES
-(3, '/images/82dc0cd7-1bda-43ae-8066-5d98dcad3895.png', 1, true),
-(3, '/images/89b6d2f3-09dc-4d48-9592-720289f471d0.png', 2, false);
-
--- P4: Crema Facial de día - Kevin & coco
-INSERT INTO product_image (product_id, url, position, main_image) VALUES
-(4, '/images/3a85f66d-8e68-4295-8610-aecf22d6fb48.webp', 1, true),
-(4, '/images/78d88f1f-de14-4ab9-a168-8f59a2bc1de5.webp', 2, false),
-(4, '/images/b7cd456b-671c-4feb-82b7-dddf9c6a9677.webp', 3, false);
-
--- P5: Delineador y Rimel Kevin & Coco
-INSERT INTO product_image (product_id, url, position, main_image) VALUES
-(5, '/images/5d97d731-5911-45af-8d77-f0b79461c739.webp', 1, true),
-(5, '/images/3dae991c-8400-4037-acc1-6e6958b27e7d.webp', 2, false),
-(5, '/images/c0130952-eda8-49bf-b5f4-b45b73e2f504.webp', 3, false),
-(5, '/images/f4c47501-2bac-42d5-a801-dd14cdab65ce.webp', 4, false);
-
--- P6: Duo de Rubor y Lipgloss Butterfly
-INSERT INTO product_image (product_id, url, position, main_image) VALUES
-(6, '/images/85da4cd7-65bc-4265-b043-31d52bc1e61b.png', 1, true),
-(6, '/images/b0530009-9ceb-4626-bae0-c74f9a28fef3.jpg', 2, false),
-(6, '/images/020034eb-3edf-4f40-8c23-4c1e01069d52.png', 3, false);
-
--- P7: Duo Labiales
-INSERT INTO product_image (product_id, url, position, main_image) VALUES
-(7, '/images/1796b9f6-b57a-437a-8c49-756604e1d7d3.png', 1, true),
-(7, '/images/e8c5650d-448c-4a64-9372-26c8e4e99be9.png', 2, false);
-
--- P8: Fijador Kevin & Coco
-INSERT INTO product_image (product_id, url, position, main_image) VALUES
-(8, '/images/b59cadf4-5905-4b94-bf1e-65a53d0c6a28.png', 1, true),
-(8, '/images/183aae7b-eaf5-41ab-b1b7-cd7a92cbe773.png', 2, false);
-
--- P9: Fijador Kiss Beauty
-INSERT INTO product_image (product_id, url, position, main_image) VALUES
-(9, '/images/51fda1fd-0d5f-4bbe-9c10-58186340a6ee.png', 1, true),
-(9, '/images/8b956553-6993-405e-94cf-bf2875bbf432.png', 2, false),
-(9, '/images/ac2bb0bb-ac27-49f5-851c-f9395ae63909.png', 3, false),
-(9, '/images/cd3e36db-fc24-461e-b10f-83f0ce51b445.png', 4, false);
-
--- P10: Labial Crystal Kiss Gloss
-INSERT INTO product_image (product_id, url, position, main_image) VALUES
-(10, '/images/60a42505-a30b-4c7f-bc87-c4de47d33fe2.png', 1, true),
-(10, '/images/404cfa1b-c936-4f7e-9cda-644ff349f16f.png', 2, false);
-
--- P11: Labial Matte ultra - Kiss Beauty
-INSERT INTO product_image (product_id, url, position, main_image) VALUES
-(11, '/images/d439330e-8270-4c50-81b8-6332bba04111.png', 1, true),
-(11, '/images/ed464e8b-dc55-46e4-85d9-f9255750a869.png', 2, false);
-
--- P12: Labial Love Lip Gloss efecto matte
-INSERT INTO product_image (product_id, url, position, main_image) VALUES
-(12, '/images/90d9f699-fac8-4441-b18c-a1cb6144a234.webp', 1, true),
-(12, '/images/0b1952f5-0a5e-492b-aba8-d39e0c971025.webp', 2, false),
-(12, '/images/e38530d6-67c3-4736-8e26-711cb16d330f.png', 3, false),
-(12, '/images/7119eb15-c7f5-4304-9b81-356afebda8b9.png', 4, false);
-
--- P13: LIPGLOSS WATER LIP - GAGK
-INSERT INTO product_image (product_id, url, position, main_image) VALUES
-(13, '/images/c884ca21-ea89-4851-a934-045529d8a8e2.png', 1, true),
-(13, '/images/4155d4d0-1289-4053-8f29-97c316e928cb.png', 2, false),
-(13, '/images/8a715779-268a-4a6a-bb5e-7b8e590503cd.png', 3, false);
-
--- P14: Balsamo Jelly Pocket Lip Jam
-INSERT INTO product_image (product_id, url, position, main_image) VALUES
-(14, '/images/38917d8c-627a-4fe3-8224-7b851b6171ce.png', 1, true),
-(14, '/images/67e63c57-0ea1-415f-927a-f5b65871f103.png', 2, false),
-(14, '/images/887874de-8506-44e6-be08-4dfabc622523.png', 3, false);
-
--- P15: Fijador Matificante de arroz
-INSERT INTO product_image (product_id, url, position, main_image) VALUES
-(15, '/images/6b2ec413-eb11-4ee3-ad02-9c38eb8d2fa4.png', 1, true);
-
--- P16: Polvo traslucido - Revel
-INSERT INTO product_image (product_id, url, position, main_image) VALUES
-(16, '/images/4f7d2c22-08f8-4061-aa6d-40017451816f.png', 1, true),
-(16, '/images/584e344f-3c1e-4ee2-a765-29b570b25ba9.png', 2, false);
-
--- P17: Removedor Biofasico - Kevin & Coco
-INSERT INTO product_image (product_id, url, position, main_image) VALUES
-(17, '/images/37fb3fb8-10d8-4089-a1de-c291dcab8d40.png', 1, true);
-
--- P18: Rubor líquido
-INSERT INTO product_image (product_id, url, position, main_image) VALUES
-(18, '/images/67e55b88-2880-434a-9a13-5fe00a9f7529.webp', 1, true),
-(18, '/images/210ce400-f124-4012-b334-d99a3566a48c.webp', 2, false),
-(18, '/images/cbb421ef-a0db-40bf-8d93-632ce1af9316.webp', 3, false);
-
--- P19: Serum 4 en 1
-INSERT INTO product_image (product_id, url, position, main_image) VALUES
-(19, '/images/712af1b4-7534-4dfb-baed-972f40e1d0d0.png', 1, true);
-
--- P20: Serum Kevin & coco
-INSERT INTO product_image (product_id, url, position, main_image) VALUES
-(20, '/images/b14b4c85-af1c-4141-b307-f3e5ac58cb7b.webp', 1, true);
-
--- P21: Sombras Electric- Lofshe
-INSERT INTO product_image (product_id, url, position, main_image) VALUES
-(21, '/images/16aa8a06-1190-4b8b-8fe8-f45b66a02c12.png', 1, true);
-
--- P22: Labial líquido Matte teddy - YeAhKiss
-INSERT INTO product_image (product_id, url, position, main_image) VALUES
-(22, '/images/0c5395df-a5c5-4714-b2fc-cd5067352446.png', 1, true),
-(22, '/images/599b82ef-135c-4edc-96fb-e0c5cc39ef84.png', 2, false),
-(22, '/images/7eab25e7-1500-4b54-af30-216e5d2d680a.png', 3, false);
-
--- P23: Tinta Candela- Nossa
-INSERT INTO product_image (product_id, url, position, main_image) VALUES
-(23, '/images/272615e7-d61a-4233-85ee-22975b1150f3.png', 1, true),
-(23, '/images/9b76c283-29a0-4f27-87b3-66deac4405c3.png', 2, false);
-
--- P24: Tinta The game - Jarusa
-INSERT INTO product_image (product_id, url, position, main_image) VALUES
-(24, '/images/44e23287-7d03-4658-9b1e-09fac64b1e2e.png', 1, true),
-(24, '/images/8321ad27-4698-4ca4-a529-477678bdae34.png', 2, false);
-
--- P25: Uñas press on ojo de gato - Nossa
-INSERT INTO product_image (product_id, url, position, main_image) VALUES
-(25, '/images/1b53a6ff-77b2-43e2-bbf1-e87a84924d84.png', 1, true),
-(25, '/images/bb1f0391-9636-44e0-a473-cc911fb726d0.png', 2, false);
-
--- P26: Body splash V.V. Love
-INSERT INTO product_image (product_id, url, position, main_image) VALUES
-(26, '/images/e968166f-784c-4886-b2f2-72db6c060733.png', 1, true),
-(26, '/images/04ed0cb2-7920-40dc-bfe6-2c6c1d265cf7.png', 2, false);
-
--- P27: Labiales - Dorage
-INSERT INTO product_image (product_id, url, position, main_image) VALUES
-(27, '/images/df4b4ff2-0df2-4f19-a530-559e99ec13b2.jpg', 1, true),
-(27, '/images/d87e3252-e897-4887-a8d6-d7a75fe7ba62.jpg', 2, false),
-(27, '/images/b2ba80be-4dde-482f-aa63-2890ab99890f.png', 3, false);
-
--- P28: Mascarilla variado - Bioquia
-INSERT INTO product_image (product_id, url, position, main_image) VALUES
-(28, '/images/797e0c61-3b0f-4bae-96ad-98ad4a9a2235.png', 1, true),
-(28, '/images/91e2e432-38ba-4a09-9311-10520c9d55ce.png', 2, false);
-
--- P29: Rubor en barra - M LUNDO
-INSERT INTO product_image (product_id, url, position, main_image) VALUES
-(29, '/images/62d33095-6a4e-4c8d-9ea2-ed8353faebce.png', 1, true),
-(29, '/images/10cbe6c5-9341-408c-bd93-b51385f686a3.jfif', 2, false);
-
--- P30: Kit duo 3 en 1
-INSERT INTO product_image (product_id, url, position, main_image) VALUES
-(30, '/images/f5cc3cec-b504-47e9-9926-ce1d80b6261d.avif', 1, true),
-(30, '/images/ff603922-05f9-42f4-8779-23754b0a9acc.avif', 2, false);
-
--- P31: Labial mousse barra matte - Italia deluxe
-INSERT INTO product_image (product_id, url, position, main_image) VALUES
-(31, '/images/45bd2d6b-f2fe-4c2c-be4e-56fcd731f480.png', 1, true);
+INSERT INTO product_variant (product_id, tone_name, tone_code, price, stock) VALUES
+(1, 'Vanilla', '#F0DDC8', 18.00, 50),
+(2, 'Natural', '#8F675C', 5.00, 30),
+(3, 'Beige', '#F1E3C1', 7.00, 40),
+(4, 'Día', '#ffffff', 15.00, 20);
 
 -- ==================================================================================
--- RESET SEQUENCES
+-- INSERTAR IMÁGENES DE PRODUCTOS (SEGÚN NUEVA LISTA)
+-- ==================================================================================
+-- P1: Base Gagk
+INSERT INTO product_image (product_id, url, position, main_image) VALUES
+(1, 'http://localhost:8000/images/5/file', 1, true),
+(1, 'http://localhost:8000/images/5/file', 2, false);
+-- P2: Brown Revel
+INSERT INTO product_image (product_id, url, position, main_image) VALUES
+(2, 'http://localhost:8000/images/5/file', 1, true),
+(2, 'http://localhost:8000/images/5/file', 2, false);
+-- P3: Corrector KC
+INSERT INTO product_image (product_id, url, position, main_image) VALUES
+(3, 'http://localhost:8000/images/5/file', 1, true),
+(3, 'http://localhost:8000/images/5/file', 2, false);
+-- P4: Crema Hidratante
+INSERT INTO product_image (product_id, url, position, main_image) VALUES
+(4, 'http://localhost:8000/images/5/file', 1, true),
+(4, 'http://localhost:8000/images/5/file', 2, false),
+(4, 'http://localhost:8000/images/5/file', 3, false);
+
+-- ==================================================================================
+-- REINICIAR SECUENCIAS
 -- ==================================================================================
 SELECT setval('category_id_seq', (SELECT MAX(id) FROM category));
 SELECT setval('product_id_seq', (SELECT MAX(id) FROM product));
