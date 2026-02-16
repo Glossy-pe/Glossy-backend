@@ -8,11 +8,10 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface ProductVariantMapper {
-    // Para convertir entidad a response (NO necesita productId)
-    ProductVariantResponse toResponse(ProductVariant variant);
-
     // Para convertir request a entidad
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "product", ignore = true) // Se asigna manualmente en el servicio
     ProductVariant toEntity(ProductVariantRequest productVariantRequest);
+
+    ProductVariantResponse toResponse(ProductVariant variant);
 }

@@ -2,9 +2,11 @@ package com.example.controller;
 
 import com.example.dtos.request.ProductImageRequest;
 import com.example.dtos.request.ProductRequest;
+import com.example.dtos.request.ProductRequestV2;
 import com.example.dtos.request.ProductVariantRequest;
 import com.example.dtos.response.ProductImageResponse;
 import com.example.dtos.response.ProductResponse;
+import com.example.dtos.response.ProductResponseV2;
 import com.example.dtos.response.ProductVariantResponse;
 import com.example.entity.Product;
 import com.example.entity.ProductImage;
@@ -37,29 +39,29 @@ public class ProductController {
 
 
 
-    @PostMapping
-    public ProductResponse create(@RequestBody ProductRequest productRequest) {
-        Product product = productMapper.toEntity(productRequest);
-        return productMapper.toResponse(productService.create(product));
-    }
+//    @PostMapping
+//    public ProductResponse create(@RequestBody ProductRequest productRequest) {
+//        Product product = productMapper.toEntity(productRequest);
+//        return productMapper.toResponse(productService.create(product));
+//    }
 
-    @GetMapping("/{productId}")
-    public ProductResponse findById(@PathVariable("productId") Long productId){
-        ProductResponse productResponse = productMapper.toResponse(productService.findById(productId));
-        System.out.println(productResponse.getCategoryId());
-        return productResponse;
-    }
+//    @GetMapping("/{productId}")
+//    public ProductResponse findById(@PathVariable("productId") Long productId){
+//        ProductResponse productResponse = productMapper.toResponse(productService.findById(productId));
+//        System.out.println(productResponse.getCategoryId());
+//        return productResponse;
+//    }
 
-    @GetMapping("")
-    public List<ProductResponse> findAll(@RequestParam(required = false) String label){
-        return productService.findAll(label).stream().map(productMapper::toResponse).toList();
-    }
+//    @GetMapping("")
+//    public List<ProductResponse> findAll(@RequestParam(required = false) String label){
+//        return productService.findAll(label).stream().map(productMapper::toResponse).toList();
+//    }
 
-    @PutMapping("/{productId}")
-    public ProductResponse update(@PathVariable("productId") Long productId, @RequestBody ProductRequest productRequest) {
-        Product product = productMapper.toEntity(productRequest);
-        return productMapper.toResponse(productService.update(productId, product));
-    }
+//    @PutMapping("/{productId}")
+//    public ProductResponse update(@PathVariable("productId") Long productId, @RequestBody ProductRequest productRequest) {
+//        Product product = productMapper.toEntity(productRequest);
+//        return productMapper.toResponse(productService.update(productId, product));
+//    }
 
     @DeleteMapping("/{productId}")
     public ResponseEntity<Void> delete(@PathVariable("productId") Long productId){
@@ -69,42 +71,63 @@ public class ProductController {
 
 
 
-    @PostMapping("/{productId}/variants")
-    public ProductVariantResponse createVariant(@PathVariable("productId") Long productId, @RequestBody ProductVariantRequest productVariantRequest) {
-        ProductVariant productVariant = productVariantMapper.toEntity(productVariantRequest);
-        return productVariantMapper.toResponse(productService.createVariant(productId, productVariant));
+//    @PostMapping("/{productId}/variants")
+//    public ProductVariantResponse createVariant(@PathVariable("productId") Long productId, @RequestBody ProductVariantRequest productVariantRequest) {
+//        ProductVariant productVariant = productVariantMapper.toEntity(productVariantRequest);
+//        return productVariantMapper.toResponse(productService.createVariant(productId, productVariant));
+//    }
+//
+//    @PutMapping("/{productId}/variants/{variantId}")
+//    public ProductVariantResponse updateVariant(@PathVariable("productId") Long productId, @PathVariable("variantId") Long variantId, @RequestBody ProductVariantRequest productVariantRequest){
+//        ProductVariant productVariant = productVariantMapper.toEntity(productVariantRequest);
+//        return productVariantMapper.toResponse(productService.updateVariant(productId, variantId, productVariant));
+//    }
+//
+//    @DeleteMapping("/{productId}/variants/{variantId}")
+//    public ResponseEntity<Void> deleteVariant(@PathVariable("productId") Long productId, @PathVariable("variantId") Long variantId){
+//        productService.deleteVariant(productId, variantId);
+//        return ResponseEntity.noContent().build();
+//    }
+//
+//
+//
+//    @PostMapping("/{id}/images")
+//    public ProductResponse createImage(@PathVariable("id") Long productId, @RequestBody ProductImageRequest productImageRequest) {
+//        Product product = productService.createImage(productId, productImageMapper.toEntity(productImageRequest));
+//        return productMapper.toResponse(product);
+//    }
+//
+//    @PutMapping("/{productId}/images/{imageId}")
+//    public ProductImageResponse updateImage(@PathVariable("productId") Long productId, @PathVariable("variantId") Long imageId, @RequestBody ProductImageRequest productImageRequest){
+//        ProductImage productImage = productImageMapper.toEntity(productImageRequest);
+//        return productImageMapper.toResponse(productService.updateImage(productId, imageId, productImage));
+//    }
+//
+//    @DeleteMapping("/{productId}/images/{imageId}")
+//    public ResponseEntity<Void> deleteImage(@PathVariable("productId") Long productId, @PathVariable("imageId") Long imageId){
+//        productService.deleteImage(productId, imageId);
+//        return ResponseEntity.noContent().build();
+//    }
+
+    /* DEMO VERSION 2*/
+    @PostMapping("")
+    public ProductResponseV2 createProductV2(@RequestBody ProductRequestV2 productRequestV2){
+        return productMapper.toResponseV2(productService.createV2(productRequestV2));
     }
 
-    @PutMapping("/{productId}/variants/{variantId}")
-    public ProductVariantResponse updateVariant(@PathVariable("productId") Long productId, @PathVariable("variantId") Long variantId, @RequestBody ProductVariantRequest productVariantRequest){
-        ProductVariant productVariant = productVariantMapper.toEntity(productVariantRequest);
-        return productVariantMapper.toResponse(productService.updateVariant(productId, variantId, productVariant));
+    @GetMapping("")
+    public List<ProductResponseV2> findByLabel(@RequestParam(required = false)Long labelId){
+        return productService.findByLabelId(labelId).stream().map(productMapper::toResponseV2).toList();
     }
 
-    @DeleteMapping("/{productId}/variants/{variantId}")
-    public ResponseEntity<Void> deleteVariant(@PathVariable("productId") Long productId, @PathVariable("variantId") Long variantId){
-        productService.deleteVariant(productId, variantId);
-        return ResponseEntity.noContent().build();
+    @GetMapping("/{productId}")
+    public ProductResponseV2 findById(@PathVariable("productId") Long productId){
+        return productMapper.toResponseV2(productService.findById(productId));
     }
 
-
-
-    @PostMapping("/{id}/images")
-    public ProductResponse createImage(@PathVariable("id") Long productId, @RequestBody ProductImageRequest productImageRequest) {
-        Product product = productService.createImage(productId, productImageMapper.toEntity(productImageRequest));
-        return productMapper.toResponse(product);
-    }
-
-    @PutMapping("/{productId}/images/{imageId}")
-    public ProductImageResponse updateImage(@PathVariable("productId") Long productId, @PathVariable("variantId") Long imageId, @RequestBody ProductImageRequest productImageRequest){
-        ProductImage productImage = productImageMapper.toEntity(productImageRequest);
-        return productImageMapper.toResponse(productService.updateImage(productId, imageId, productImage));
-    }
-
-    @DeleteMapping("/{productId}/images/{imageId}")
-    public ResponseEntity<Void> deleteImage(@PathVariable("productId") Long productId, @PathVariable("imageId") Long imageId){
-        productService.deleteImage(productId, imageId);
-        return ResponseEntity.noContent().build();
+    @PutMapping("/{productId}")
+    public ProductResponseV2 updateProductV2(@PathVariable("productId") Long productId, @RequestBody ProductRequestV2 productRequestV2){
+        return productMapper.toResponseV2(productService.updateV2(productId ,productRequestV2));
     }
 
 }

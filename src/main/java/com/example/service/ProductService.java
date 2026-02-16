@@ -1,8 +1,11 @@
 package com.example.service;
 
-import com.example.entity.Product;
-import com.example.entity.ProductImage;
-import com.example.entity.ProductVariant;
+import com.example.dtos.request.ProductRequestV2;
+import com.example.entity.*;
+import com.example.mapper.ProductImageMapper;
+import com.example.mapper.ProductMapper;
+import com.example.mapper.ProductVariantMapper;
+import com.example.repository.LabelRepository;
 import com.example.repository.ProductImageRepository;
 import com.example.repository.ProductRepository;
 import com.example.repository.ProductVariantRepository;
@@ -22,6 +25,17 @@ public class ProductService {
     private ProductImageRepository productImageRepository;
     @Autowired
     private ProductVariantRepository productVariantRepository;
+    @Autowired
+    private LabelRepository labelRepository;
+
+    /* */
+    @Autowired
+    private ProductMapper productMapper;
+    @Autowired
+    private ProductImageMapper productImageMapper;
+    @Autowired
+    private ProductVariantMapper productVariantMapper;
+    /* */
 
     @Autowired
     private CategoryService categoryService;
@@ -131,5 +145,109 @@ public class ProductService {
         product.getImages().remove(image);
 
         productImageRepository.delete(image);
+    }
+
+    @Transactional
+    public void updateProductLabels(Long productId, List<Long> labelIds) {
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        // Elimina todas las relaciones actuales
+        product.getProductLabels().clear();
+
+        if (labelIds == null || labelIds.isEmpty()) {
+            return; // Si viene vacío, queda sin labels
+        }
+
+        for (Long labelId : labelIds) {
+
+            Label label = labelRepository.findById(labelId)
+                    .orElseThrow(() -> new RuntimeException("Label no encontrado"));
+
+            ProductLabel pl = new ProductLabel(product, label);
+            product.getProductLabels().add(pl);
+        }
+    }
+
+    /* DEMO VERSION 2*/
+    public List<Product> findByLabelId(Long labelId){
+        if (labelId != null) {
+            return productRepository.findByLabelId(labelId);
+        }
+        return productRepository.findAll();
+    }
+
+    @Transactional
+    public Product createV2(ProductRequestV2 productRequestV2){
+
+        Product product = productMapper.toEntityV2(productRequestV2);
+
+        product.setCategory(
+                categoryService.findById(productRequestV2.getCategoryId())
+        );
+
+        // 🔥 aquí arreglamos la relación bidireccional
+        product.getImages().forEach(img -> img.setProduct(product));
+        product.getVariants().forEach(variant -> variant.setProduct(product));
+
+        // No es necesario al crear, solo en el update
+//        product.getProductLabels().clear();
+        if (productRequestV2.getLabelsIds() != null) {
+            productRequestV2.getLabelsIds().forEach(id -> {
+                Label label = labelRepository.findById(id).orElseThrow();
+                product.getProductLabels().add(new ProductLabel(product, label));
+            });
+        }
+
+        return productRepository.save(product);
+    }
+
+    @Transactional
+    public Product updateV2(Long productId, ProductRequestV2 productRequestV2){
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new EntityNotFoundException("Producto no encontrado"));
+
+        // actualizar campos simples
+        product.setName(productRequestV2.getName());
+        product.setDescription(productRequestV2.getDescription());
+        product.setFullDescription(productRequestV2.getFullDescription());
+        product.setActive(productRequestV2.isActive());
+
+        product.setCategory(
+                categoryService.findById(productRequestV2.getCategoryId())
+        );
+
+        // Images
+        product.getImages().clear();
+        if (productRequestV2.getImages() != null) {
+            productRequestV2.getImages().forEach(imgReq -> {
+                ProductImage img = productImageMapper.toEntity(imgReq);
+                img.setProduct(product);
+                product.getImages().add(img);
+            });
+        }
+
+        // Variants
+        product.getVariants().clear();
+        if (productRequestV2.getVariants() != null) {
+            productRequestV2.getVariants().forEach(varReq -> {
+                ProductVariant variant = productVariantMapper.toEntity(varReq);
+                variant.setProduct(product);
+                product.getVariants().add(variant);
+            });
+        }
+
+        // No es necesario al crear, solo en el update
+        product.getProductLabels().clear();
+        if (productRequestV2.getLabelsIds() != null) {
+            productRequestV2.getLabelsIds().forEach(labelId -> {
+                Label label = labelRepository.findById(labelId).orElseThrow();
+                product.getProductLabels().add(new ProductLabel(product, label));
+            });
+        }
+
+        return productRepository.save(product);
     }
 }

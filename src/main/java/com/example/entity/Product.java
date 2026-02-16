@@ -23,12 +23,7 @@ public class Product {
     @Column(nullable = false)
     private String name;
 
-    @OneToMany(
-            mappedBy = "product",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
-    private List<ProductImage> images = new ArrayList<>();
+
 
     @Column(length = 1000)
     private String description;
@@ -39,6 +34,9 @@ public class Product {
     @Column(length = 1000)
     private String label;
 
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductLabel> productLabels = new ArrayList<>();
+
     @Column(nullable = false)
     private boolean active = true;
 
@@ -48,6 +46,9 @@ public class Product {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductVariant> variants = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductImage> images = new ArrayList<>();
 }
 
 

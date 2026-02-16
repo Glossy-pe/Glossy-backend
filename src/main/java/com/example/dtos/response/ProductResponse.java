@@ -19,4 +19,6 @@ public class ProductResponse {
     private String label;
     private Long categoryId;
     private List<ProductVariantResponse> variants = new ArrayList<>();
+
+//    private List<LabelResponse> labels;
 }
