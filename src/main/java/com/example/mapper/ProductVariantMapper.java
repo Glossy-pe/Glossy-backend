@@ -13,5 +13,7 @@ public interface ProductVariantMapper {
     @Mapping(target = "product", ignore = true) // Se asigna manualmente en el servicio
     ProductVariant toEntity(ProductVariantRequest productVariantRequest);
 
+    @Mapping(source = "product.id", target = "productId")
+    @Mapping(source = "product.name", target = "productName")
     ProductVariantResponse toResponse(ProductVariant variant);
 }

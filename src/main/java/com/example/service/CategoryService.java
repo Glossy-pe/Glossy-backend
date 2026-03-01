@@ -1,7 +1,6 @@
 package com.example.service;
 
 import com.example.entity.Category;
-import com.example.entity.User;
 import com.example.repository.CategoryRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;

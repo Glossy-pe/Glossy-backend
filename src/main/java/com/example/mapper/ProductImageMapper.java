@@ -5,7 +5,6 @@ import com.example.dtos.response.ProductImageResponse;
 import com.example.entity.Product;
 import com.example.entity.ProductImage;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface ProductImageMapper {

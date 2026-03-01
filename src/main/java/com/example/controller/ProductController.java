@@ -1,20 +1,8 @@
 package com.example.controller;
 
-import com.example.dtos.request.ProductImageRequest;
-import com.example.dtos.request.ProductRequest;
 import com.example.dtos.request.ProductRequestV2;
-import com.example.dtos.request.ProductVariantRequest;
-import com.example.dtos.response.ProductImageResponse;
-import com.example.dtos.response.ProductResponse;
 import com.example.dtos.response.ProductResponseV2;
-import com.example.dtos.response.ProductVariantResponse;
-import com.example.entity.Product;
-import com.example.entity.ProductImage;
-import com.example.entity.ProductVariant;
-import com.example.mapper.ProductImageMapper;
 import com.example.mapper.ProductMapper;
-import com.example.mapper.ProductVariantMapper;
-import com.example.service.CategoryService;
 import com.example.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,13 +17,7 @@ public class ProductController {
     @Autowired
     private ProductService productService;
     @Autowired
-    private CategoryService categoryService;
-    @Autowired
     private ProductMapper productMapper;
-    @Autowired
-    private ProductVariantMapper productVariantMapper;
-    @Autowired
-    private ProductImageMapper productImageMapper;
 
 
 

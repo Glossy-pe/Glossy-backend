@@ -12,7 +12,6 @@ import com.example.entity.ProductImage;
 import com.example.entity.ProductLabel;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
 
 import java.util.ArrayList;
 import java.util.Comparator;
