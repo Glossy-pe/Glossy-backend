@@ -2,10 +2,8 @@ package com.example.controller;
 
 import com.example.dtos.request.LabelRequest;
 import com.example.dtos.response.LabelResponse;
-import com.example.entity.Label;
 import com.example.mapper.LabelMapper;
 import com.example.service.LabelService;
-import jakarta.websocket.server.PathParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

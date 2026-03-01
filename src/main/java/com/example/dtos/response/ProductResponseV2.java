@@ -1,7 +1,5 @@
 package com.example.dtos.response;
 
-import com.example.dtos.request.ProductImageRequest;
-import com.example.dtos.request.ProductVariantRequest;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -2,7 +2,6 @@ package com.example.entity;
 
 import com.example.enums.OrderStatus;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,18 +30,27 @@ public class Order {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Column(nullable = true)
+    private String customerName;
+
+    @Column(nullable = true)
+    private String customerAddress;
+
+    @Column(nullable = false, unique = true, length = 20)
+    private String orderCode;
+
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = true)
     private OrderStatus status;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private BigDecimal total;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderItem> items = new ArrayList<>();
+    private List<OrderItem> orderItems = new ArrayList<>();
 }
 
 

@@ -6,8 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.math.BigDecimal;
-
 @Entity
 @Getter
 @Setter
@@ -20,14 +18,9 @@ public class OrderItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String productName;
-
-    @Column(nullable = false)
-    private String toneName;
-
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal unitPrice;
+    @ManyToOne
+    @JoinColumn(name = "product_variant_id")
+    private ProductVariant productVariant;
 
     @Column(nullable = false)
     @Min(1)
