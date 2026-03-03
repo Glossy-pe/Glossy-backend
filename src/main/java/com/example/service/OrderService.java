@@ -37,7 +37,7 @@ public class OrderService {
     public Order create(OrderRequest request) {
         Order order = new Order();
 
-        order.setOrderCode("ORD-" + UUID.randomUUID().toString().substring(0,8).toUpperCase());
+        order.setOrderCode("ORD-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
         order.setStatus(request.getStatus());
         order.setTotal(request.getTotal());
         order.setCustomerName(request.getCustomerName());
@@ -60,8 +60,7 @@ public class OrderService {
             orderItem.setOrder(order);
 
             productVariant.setStock(
-                productVariant.getStock() - itemRequest.getQuantity()
-            );
+                    productVariant.getStock() - itemRequest.getQuantity());
 
             return orderItem;
         }).toList();
@@ -71,17 +70,62 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
+    @Transactional
+    public Order update(Long id, OrderRequest request) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        // Restaurar stock de los items anteriores
+        order.getOrderItems().forEach(existingItem -> {
+            ProductVariant variant = existingItem.getProductVariant();
+            variant.setStock(variant.getStock() + existingItem.getQuantity());
+            productVariantRepository.save(variant);
+        });
+
+        // Actualizar campos básicos
+        order.setStatus(request.getStatus());
+        order.setTotal(request.getTotal());
+        order.setCustomerName(request.getCustomerName());
+        order.setCustomerAddress(request.getCustomerAddress());
+        order.setCreatedAt(LocalDateTime.now());
+
+        // Reemplazar items
+        List<OrderItem> updatedItems = request.getOrderItems().stream().map(itemRequest -> {
+            ProductVariant productVariant = productVariantRepository
+                    .findById(itemRequest.getProductVariantId())
+                    .orElseThrow(() -> new RuntimeException("ProductVariant not found"));
+
+            if (productVariant.getStock() < itemRequest.getQuantity()) {
+                throw new RuntimeException("Insufficient stock for variant: " + productVariant.getId());
+            }
+
+            OrderItem orderItem = new OrderItem();
+            orderItem.setProductVariant(productVariant);
+            orderItem.setQuantity(itemRequest.getQuantity());
+            orderItem.setOrder(order);
+
+            productVariant.setStock(productVariant.getStock() - itemRequest.getQuantity());
+
+            return orderItem;
+        }).toList();
+
+        order.getOrderItems().clear();
+        order.getOrderItems().addAll(updatedItems);
+
+        return orderRepository.save(order);
+    }
+
     public void delete(Long orderId) {
 
         Order order = orderRepository.findById(orderId).orElseThrow();
 
         order.getOrderItems().stream().map(
-            orderItem -> {
-                ProductVariant productVariant = productVariantRepository.findById(orderItem.getProductVariant().getId()).orElseThrow();
-                productVariant.setStock(productVariant.getStock()+orderItem.getQuantity());
-                return orderItem;
-            }
-        ).toList();
+                orderItem -> {
+                    ProductVariant productVariant = productVariantRepository
+                            .findById(orderItem.getProductVariant().getId()).orElseThrow();
+                    productVariant.setStock(productVariant.getStock() + orderItem.getQuantity());
+                    return orderItem;
+                }).toList();
         orderRepository.deleteById(orderId);
     }
 
