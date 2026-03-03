@@ -69,10 +69,14 @@ public class ProductService {
         this.productRepository.deleteById(id);
     }
 
-    public List<Product> findAll(String label){
+    public List<Product> findAll(Long labelId, Long categoryId) {
 
-        if (label != null && !label.trim().isEmpty()) {
-            return productRepository.findByLabel(label);
+        if (labelId != null) {
+            return productRepository.findByLabelId(labelId);
+        }
+
+        if (categoryId != null) {
+            return productRepository.findByCategoryId(categoryId);
         }
 
         return productRepository.findAll();
@@ -174,6 +178,13 @@ public class ProductService {
     public List<Product> findByLabelId(Long labelId){
         if (labelId != null) {
             return productRepository.findByLabelId(labelId);
+        }
+        return productRepository.findAll();
+    }
+
+    public List<Product> findByCategoryId(Long categoryId){
+        if (categoryId != null) {
+            return productRepository.findByCategoryId(categoryId);
         }
         return productRepository.findAll();
     }
