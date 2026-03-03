@@ -2,6 +2,7 @@ package com.example.controller;
 
 import com.example.dtos.request.ProductRequestV2;
 import com.example.dtos.response.ProductResponseV2;
+import com.example.entity.Product;
 import com.example.mapper.ProductMapper;
 import com.example.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
