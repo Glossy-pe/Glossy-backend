@@ -99,8 +99,13 @@ public class ProductController {
     }
 
     @GetMapping("")
-    public List<ProductResponseV2> findByLabel(@RequestParam(required = false)Long labelId){
-        return productService.findByLabelId(labelId).stream().map(productMapper::toResponseV2).toList();
+    public List<ProductResponseV2> findAll(
+        @RequestParam(required = false) Long labelId,
+        @RequestParam(required = false) Long categoryId
+    ) {
+        return productService.findAll(labelId, categoryId).stream()
+            .map(productMapper::toResponseV2)
+            .toList();
     }
 
     @GetMapping("/{productId}")

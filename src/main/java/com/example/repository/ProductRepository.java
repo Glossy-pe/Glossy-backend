@@ -17,4 +17,12 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     WHERE pl.label_id = :labelId
 """, nativeQuery = true)
     List<Product> findByLabelId(@Param("labelId") Long labelId);
+
+
+    @Query(value = """
+    SELECT p.*
+    FROM product p
+    WHERE p.category_id = :categoryId
+""", nativeQuery = true)
+    List<Product> findByCategoryId(@Param("categoryId") Long categoryId);
 }
