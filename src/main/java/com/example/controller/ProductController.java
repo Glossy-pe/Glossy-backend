@@ -1,9 +1,12 @@
 package com.example.controller;
 
 import com.example.dtos.request.ProductRequestV2;
+import com.example.dtos.request.ProductVariantRequest;
 import com.example.dtos.response.ProductResponseV2;
-import com.example.entity.Product;
+import com.example.dtos.response.ProductVariantResponse;
+import com.example.entity.ProductVariant;
 import com.example.mapper.ProductMapper;
+import com.example.mapper.ProductVariantMapper;
 import com.example.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +22,8 @@ public class ProductController {
     private ProductService productService;
     @Autowired
     private ProductMapper productMapper;
+    @Autowired
+    private ProductVariantMapper productVariantMapper;
 
 
 
@@ -54,23 +59,23 @@ public class ProductController {
 
 
 
-//    @PostMapping("/{productId}/variants")
-//    public ProductVariantResponse createVariant(@PathVariable("productId") Long productId, @RequestBody ProductVariantRequest productVariantRequest) {
-//        ProductVariant productVariant = productVariantMapper.toEntity(productVariantRequest);
-//        return productVariantMapper.toResponse(productService.createVariant(productId, productVariant));
-//    }
+   @PostMapping("/{productId}/variants")
+   public ProductVariantResponse createVariant(@PathVariable("productId") Long productId, @RequestBody ProductVariantRequest productVariantRequest) {
+       ProductVariant productVariant = productVariantMapper.toEntity(productVariantRequest);
+       return productVariantMapper.toResponse(productService.createVariant(productId, productVariant));
+   }
 //
-//    @PutMapping("/{productId}/variants/{variantId}")
-//    public ProductVariantResponse updateVariant(@PathVariable("productId") Long productId, @PathVariable("variantId") Long variantId, @RequestBody ProductVariantRequest productVariantRequest){
-//        ProductVariant productVariant = productVariantMapper.toEntity(productVariantRequest);
-//        return productVariantMapper.toResponse(productService.updateVariant(productId, variantId, productVariant));
-//    }
+   @PutMapping("/{productId}/variants/{variantId}")
+   public ProductVariantResponse updateVariant(@PathVariable("productId") Long productId, @PathVariable("variantId") Long variantId, @RequestBody ProductVariantRequest productVariantRequest){
+       ProductVariant productVariant = productVariantMapper.toEntity(productVariantRequest);
+       return productVariantMapper.toResponse(productService.updateVariant(productId, variantId, productVariant));
+   }
 //
-//    @DeleteMapping("/{productId}/variants/{variantId}")
-//    public ResponseEntity<Void> deleteVariant(@PathVariable("productId") Long productId, @PathVariable("variantId") Long variantId){
-//        productService.deleteVariant(productId, variantId);
-//        return ResponseEntity.noContent().build();
-//    }
+   @DeleteMapping("/{productId}/variants/{variantId}")
+   public ResponseEntity<Void> deleteVariant(@PathVariable("productId") Long productId, @PathVariable("variantId") Long variantId){
+       productService.deleteVariant(productId, variantId);
+       return ResponseEntity.noContent().build();
+   }
 //
 //
 //
