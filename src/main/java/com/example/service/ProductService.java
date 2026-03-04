@@ -1,11 +1,13 @@
 package com.example.service;
 
 import com.example.dtos.request.ProductRequestV2;
+import com.example.dtos.request.ProductVariantRequest;
 import com.example.entity.*;
 import com.example.mapper.ProductImageMapper;
 import com.example.mapper.ProductMapper;
 import com.example.mapper.ProductVariantMapper;
 import com.example.repository.LabelRepository;
+import com.example.repository.OrderItemRepository;
 import com.example.repository.ProductImageRepository;
 import com.example.repository.ProductRepository;
 import com.example.repository.ProductVariantRepository;
@@ -25,6 +27,8 @@ public class ProductService {
     private ProductImageRepository productImageRepository;
     @Autowired
     private ProductVariantRepository productVariantRepository;
+    @Autowired
+    private OrderItemRepository orderItemRepository;
     @Autowired
     private LabelRepository labelRepository;
 
@@ -189,76 +193,98 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    @Transactional
-    public Product createV2(ProductRequestV2 productRequestV2){
+@Transactional
+public Product createV2(ProductRequestV2 productRequestV2){
 
-        Product product = productMapper.toEntityV2(productRequestV2);
+    Product product = productMapper.toEntityV2(productRequestV2);
 
-        product.setCategory(
-                categoryService.findById(productRequestV2.getCategoryId())
-        );
+    product.setCategory(
+            categoryService.findById(productRequestV2.getCategoryId())
+    );
 
-        // 🔥 aquí arreglamos la relación bidireccional
-        product.getImages().forEach(img -> img.setProduct(product));
-        product.getVariants().forEach(variant -> variant.setProduct(product));
+    product.getImages().forEach(img -> img.setProduct(product));
+    product.getVariants().forEach(variant -> variant.setProduct(product));
 
-        // No es necesario al crear, solo en el update
-//        product.getProductLabels().clear();
-        if (productRequestV2.getLabelsIds() != null) {
-            productRequestV2.getLabelsIds().forEach(id -> {
-                Label label = labelRepository.findById(id).orElseThrow();
-                product.getProductLabels().add(new ProductLabel(product, label));
-            });
-        }
-
-        return productRepository.save(product);
+    if (productRequestV2.getLabelsIds() != null) {
+        productRequestV2.getLabelsIds().forEach(id -> {
+            Label label = labelRepository.findById(id).orElseThrow();
+            product.getProductLabels().add(new ProductLabel(product, label));
+        });
     }
 
-    @Transactional
-    public Product updateV2(Long productId, ProductRequestV2 productRequestV2){
+    return productRepository.save(product);
+}
 
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new EntityNotFoundException("Producto no encontrado"));
+@Transactional
+public Product updateV2(Long productId, ProductRequestV2 productRequestV2){
 
-        // actualizar campos simples
-        product.setName(productRequestV2.getName());
-        product.setDescription(productRequestV2.getDescription());
-        product.setFullDescription(productRequestV2.getFullDescription());
-        product.setActive(productRequestV2.isActive());
+    Product product = productRepository.findById(productId)
+            .orElseThrow(() -> new EntityNotFoundException("Producto no encontrado"));
 
-        product.setCategory(
-                categoryService.findById(productRequestV2.getCategoryId())
-        );
+    // Campos simples
+    product.setName(productRequestV2.getName());
+    product.setDescription(productRequestV2.getDescription());
+    product.setFullDescription(productRequestV2.getFullDescription());
+    product.setActive(productRequestV2.isActive());
+    product.setCategory(categoryService.findById(productRequestV2.getCategoryId()));
 
-        // Images
-        product.getImages().clear();
-        if (productRequestV2.getImages() != null) {
-            productRequestV2.getImages().forEach(imgReq -> {
-                ProductImage img = productImageMapper.toEntity(imgReq);
-                img.setProduct(product);
-                product.getImages().add(img);
-            });
-        }
-
-        // Variants
-        product.getVariants().clear();
-        if (productRequestV2.getVariants() != null) {
-            productRequestV2.getVariants().forEach(varReq -> {
-                ProductVariant variant = productVariantMapper.toEntity(varReq);
-                variant.setProduct(product);
-                product.getVariants().add(variant);
-            });
-        }
-
-        // No es necesario al crear, solo en el update
-        product.getProductLabels().clear();
-        if (productRequestV2.getLabelsIds() != null) {
-            productRequestV2.getLabelsIds().forEach(labelId -> {
-                Label label = labelRepository.findById(labelId).orElseThrow();
-                product.getProductLabels().add(new ProductLabel(product, label));
-            });
-        }
-
-        return productRepository.save(product);
+    // Images: reemplazar limpio (no tienen FKs externas)
+    product.getImages().clear();
+    if (productRequestV2.getImages() != null) {
+        productRequestV2.getImages().forEach(imgReq -> {
+            ProductImage img = productImageMapper.toEntity(imgReq);
+            img.setProduct(product);
+            product.getImages().add(img);
+        });
     }
+
+    // Variants
+    if (productRequestV2.getVariants() != null) {
+        List<Long> incomingIds = productRequestV2.getVariants().stream()
+                .filter(v -> v.getId() != null)
+                .map(ProductVariantRequest::getId)
+                .toList();
+
+        // Eliminar solo las que no vienen, validando que no estén en órdenes
+        product.getVariants().removeIf(existing -> {
+            boolean shouldRemove = !incomingIds.contains(existing.getId());
+            if (shouldRemove && orderItemRepository.existsByProductVariantId(existing.getId())) {
+                throw new RuntimeException(
+                    "La variante '" + existing.getToneName() + "' está asociada a una orden y no puede eliminarse"
+                );
+            }
+            return shouldRemove;
+        });
+
+        // Actualizar existentes y agregar nuevas
+        productRequestV2.getVariants().forEach(varReq -> {
+            if (varReq.getId() != null) {
+                product.getVariants().stream()
+                        .filter(v -> v.getId().equals(varReq.getId()))
+                        .findFirst()
+                        .ifPresent(v -> {
+                            v.setToneName(varReq.getToneName());
+                            v.setToneCode(varReq.getToneCode());
+                            v.setPrice(varReq.getPrice());
+                            v.setStock(varReq.getStock());
+                        });
+            } else {
+                ProductVariant newVariant = productVariantMapper.toEntity(varReq);
+                newVariant.setProduct(product);
+                product.getVariants().add(newVariant);
+            }
+        });
+    }
+
+    // Labels: reemplazar limpio (no tienen FKs externas)
+    product.getProductLabels().clear();
+    if (productRequestV2.getLabelsIds() != null) {
+        productRequestV2.getLabelsIds().forEach(labelId -> {
+            Label label = labelRepository.findById(labelId).orElseThrow();
+            product.getProductLabels().add(new ProductLabel(product, label));
+        });
+    }
+
+    return productRepository.save(product);
+}
 }

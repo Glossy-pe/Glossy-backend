@@ -15,4 +15,5 @@ public class ProductVariantResponse {
     private String toneCode;   // CL-01, MD-02
     private BigDecimal price;
     private int stock;
+    private boolean active;
 }
