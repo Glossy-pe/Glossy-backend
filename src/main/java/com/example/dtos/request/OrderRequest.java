@@ -15,6 +15,7 @@ import lombok.Setter;
 public class OrderRequest {
     private OrderStatus status;
     private BigDecimal total;
+    private BigDecimal costTotal;
     private String customerName;
     private String customerAddress;
     private LocalDateTime createdAt;

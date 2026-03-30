@@ -19,6 +19,7 @@ public class OrderResponse {
     private String orderCode;
     private OrderStatus status;
     private BigDecimal total;
+    private BigDecimal costTotal;
     private LocalDateTime createdAt;
     private List<OrderItemResponse> orderItems = new ArrayList<>();
 }

@@ -1,12 +1,13 @@
 package com.example.dtos.response;
 
+import java.math.BigDecimal;
+
 import lombok.Getter;
 import lombok.Setter;
-import java.math.BigDecimal;
 
 @Getter
 @Setter
-public class ProductVariantResponse {
+public class VariantResponse {
     private Long id;
     private Long productId;
     private String productName;
@@ -14,8 +15,7 @@ public class ProductVariantResponse {
     private String toneCode;
     private BigDecimal price;
     private BigDecimal cost;
-    private Integer stock;
+    private int stock;
     private Integer position;
-    private Boolean active;
-    private String mainImageUrl; // 👈 nuevo campo
+    private boolean active;
 }

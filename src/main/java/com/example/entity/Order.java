@@ -44,6 +44,9 @@ public class Order {
     private OrderStatus status;
 
     @Column(nullable = true)
+    private BigDecimal costTotal;
+
+    @Column(nullable = true)
     private BigDecimal total;
 
     @Column(nullable = true)

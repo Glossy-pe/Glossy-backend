@@ -1,17 +1,15 @@
 package com.example.controller;
 
-import com.example.dtos.request.ProductRequestV2;
-import com.example.dtos.request.ProductVariantRequest;
-import com.example.dtos.response.ProductResponseV2;
-import com.example.dtos.response.ProductVariantResponse;
-import com.example.entity.ProductVariant;
-import com.example.mapper.ProductMapper;
-import com.example.mapper.ProductVariantMapper;
+import com.example.dtos.request.product.ProductRequest;
+import com.example.dtos.response.product.ProductResponse;
+import com.example.dtos.response.full.ProductResponseFull;
 import com.example.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @RestController
@@ -20,36 +18,29 @@ public class ProductController {
 
     @Autowired
     private ProductService productService;
-    @Autowired
-    private ProductMapper productMapper;
-    @Autowired
-    private ProductVariantMapper productVariantMapper;
 
+    @PostMapping("")
+    public ProductResponse create(@RequestBody ProductRequest productRequestV2){
+        return productService.create(productRequestV2);
+    }
 
+    @GetMapping("")
+    public List<ProductResponse> findAll(
+            @RequestParam(required = false) Long labelId,
+            @RequestParam(required = false) Long categoryId
+    ) {
+        return productService.findAll();
+    }
 
-//    @PostMapping
-//    public ProductResponse create(@RequestBody ProductRequest productRequest) {
-//        Product product = productMapper.toEntity(productRequest);
-//        return productMapper.toResponse(productService.create(product));
-//    }
+    @GetMapping("/{productId}")
+    public ProductResponse findById(@PathVariable("productId") Long productId){
+        return productService.findById(productId);
+    }
 
-//    @GetMapping("/{productId}")
-//    public ProductResponse findById(@PathVariable("productId") Long productId){
-//        ProductResponse productResponse = productMapper.toResponse(productService.findById(productId));
-//        System.out.println(productResponse.getCategoryId());
-//        return productResponse;
-//    }
-
-//    @GetMapping("")
-//    public List<ProductResponse> findAll(@RequestParam(required = false) String label){
-//        return productService.findAll(label).stream().map(productMapper::toResponse).toList();
-//    }
-
-//    @PutMapping("/{productId}")
-//    public ProductResponse update(@PathVariable("productId") Long productId, @RequestBody ProductRequest productRequest) {
-//        Product product = productMapper.toEntity(productRequest);
-//        return productMapper.toResponse(productService.update(productId, product));
-//    }
+    @PutMapping("/{productId}")
+    public ProductResponse update(@PathVariable("productId") Long productId, @RequestBody ProductRequest productRequest){
+        return productService.update(productId ,productRequest);
+    }
 
     @DeleteMapping("/{productId}")
     public ResponseEntity<Void> delete(@PathVariable("productId") Long productId){
@@ -57,70 +48,39 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
 
-
-
-   @PostMapping("/{productId}/variants")
-   public ProductVariantResponse createVariant(@PathVariable("productId") Long productId, @RequestBody ProductVariantRequest productVariantRequest) {
-       ProductVariant productVariant = productVariantMapper.toEntity(productVariantRequest);
-       return productVariantMapper.toResponse(productService.createVariant(productId, productVariant));
-   }
-//
-   @PutMapping("/{productId}/variants/{variantId}")
-   public ProductVariantResponse updateVariant(@PathVariable("productId") Long productId, @PathVariable("variantId") Long variantId, @RequestBody ProductVariantRequest productVariantRequest){
-       ProductVariant productVariant = productVariantMapper.toEntity(productVariantRequest);
-       return productVariantMapper.toResponse(productService.updateVariant(productId, variantId, productVariant));
-   }
-//
-   @DeleteMapping("/{productId}/variants/{variantId}")
-   public ResponseEntity<Void> deleteVariant(@PathVariable("productId") Long productId, @PathVariable("variantId") Long variantId){
-       productService.deleteVariant(productId, variantId);
-       return ResponseEntity.noContent().build();
-   }
-//
-//
-//
-//    @PostMapping("/{id}/images")
-//    public ProductResponse createImage(@PathVariable("id") Long productId, @RequestBody ProductImageRequest productImageRequest) {
-//        Product product = productService.createImage(productId, productImageMapper.toEntity(productImageRequest));
-//        return productMapper.toResponse(product);
-//    }
-//
-//    @PutMapping("/{productId}/images/{imageId}")
-//    public ProductImageResponse updateImage(@PathVariable("productId") Long productId, @PathVariable("variantId") Long imageId, @RequestBody ProductImageRequest productImageRequest){
-//        ProductImage productImage = productImageMapper.toEntity(productImageRequest);
-//        return productImageMapper.toResponse(productService.updateImage(productId, imageId, productImage));
-//    }
-//
-//    @DeleteMapping("/{productId}/images/{imageId}")
-//    public ResponseEntity<Void> deleteImage(@PathVariable("productId") Long productId, @PathVariable("imageId") Long imageId){
-//        productService.deleteImage(productId, imageId);
-//        return ResponseEntity.noContent().build();
-//    }
-
-    /* DEMO VERSION 2*/
-    @PostMapping("")
-    public ProductResponseV2 createProductV2(@RequestBody ProductRequestV2 productRequestV2){
-        return productMapper.toResponseV2(productService.createV2(productRequestV2));
-    }
-
-    @GetMapping("")
-    public List<ProductResponseV2> findAll(
-        @RequestParam(required = false) Long labelId,
-        @RequestParam(required = false) Long categoryId
+    @GetMapping("/full")
+    public Page<ProductResponseFull> findAllFull(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(required = false) Long categoryId,
+        @RequestParam(required = false) Long labelId   // 👈 agrega
     ) {
-        return productService.findAll(labelId, categoryId).stream()
-            .map(productMapper::toResponseV2)
-            .toList();
+        Pageable pageable = PageRequest.of(page, size);
+        return productService.findAllFull(pageable, categoryId, labelId);
     }
 
-    @GetMapping("/{productId}")
-    public ProductResponseV2 findById(@PathVariable("productId") Long productId){
-        return productMapper.toResponseV2(productService.findById(productId));
+    @GetMapping("/full/{id}")
+    public ProductResponseFull findByIdFull(@PathVariable Long id) {
+        return productService.findByIdFull(id);
     }
 
-    @PutMapping("/{productId}")
-    public ProductResponseV2 updateProductV2(@PathVariable("productId") Long productId, @RequestBody ProductRequestV2 productRequestV2){
-        return productMapper.toResponseV2(productService.updateV2(productId ,productRequestV2));
+
+    @GetMapping("/full/search")
+    public Page<ProductResponseFull> search(
+            @RequestParam(defaultValue = "") String q,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "200") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        return productService.searchFull(q, pageable);
     }
 
+    @PutMapping("/{id}/labels")
+    public ResponseEntity<Void> updateLabels(
+        @PathVariable Long id,
+        @RequestBody List<Long> labelIds
+    ) {
+        productService.updateProductLabels(id, labelIds);
+        return ResponseEntity.ok().build();
+    }
 }
