@@ -1,4 +1,4 @@
-package com.example.dtos.request;
+package com.example.dtos.request.product;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,8 +9,6 @@ public class ProductRequest {
     private String name;
     private String description;
     private String fullDescription;
-    private boolean active = true;
-    private String label;
+    private Boolean active = true;
     private Long categoryId;
-//    private List<Long> labelIds;
 }

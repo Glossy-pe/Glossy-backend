@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.dtos.request.OrderRequest;
@@ -25,8 +27,15 @@ public class OrderService {
     @Autowired
     private ProductVariantRepository productVariantRepository;
 
-    public List<Order> findAll() {
-        return orderRepository.findAll();
+    public Page<Order> findAll(String q, List<String> statusList, Pageable pageable) {
+        boolean emptyStatus = statusList == null || statusList.isEmpty();
+        List<String> list = emptyStatus ? List.of("") : statusList;
+        return orderRepository.findAllByQuery(
+                q == null ? "" : q,
+                list,
+                emptyStatus,
+                pageable
+        );
     }
 
     public Order findById(Long orderId) {
@@ -39,10 +48,10 @@ public class OrderService {
 
         order.setOrderCode("ORD-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase());
         order.setStatus(request.getStatus());
-        order.setTotal(request.getTotal());
         order.setCustomerName(request.getCustomerName());
         order.setCustomerAddress(request.getCustomerAddress());
         order.setTotal(request.getTotal());
+        order.setCostTotal(request.getCostTotal());
         order.setCreatedAt(LocalDateTime.now());
 
         List<OrderItem> orderItems = request.getOrderItems().stream().map(itemRequest -> {
@@ -85,6 +94,7 @@ public class OrderService {
         // Actualizar campos básicos
         order.setStatus(request.getStatus());
         order.setTotal(request.getTotal());
+        order.setCostTotal(request.getCostTotal());
         order.setCustomerName(request.getCustomerName());
         order.setCustomerAddress(request.getCustomerAddress());
         order.setCreatedAt(LocalDateTime.now());
