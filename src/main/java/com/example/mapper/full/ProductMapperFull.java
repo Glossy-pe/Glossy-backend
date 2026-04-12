@@ -7,8 +7,10 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import com.example.dtos.response.LabelResponse;
+import com.example.dtos.response.ProductImageResponse;
 import com.example.dtos.response.full.ProductResponseFull;
 import com.example.entity.Product;
+import com.example.entity.ProductImage;
 import com.example.entity.ProductLabel;
 
 @Mapper(
@@ -21,7 +23,11 @@ public interface ProductMapperFull {
     @Mapping(target = "variants", source = "variants")
     @Mapping(target = "labels", source = "productLabels")
     @Mapping(target = "label", ignore = true)
+    @Mapping(target = "images", source = "images")
     ProductResponseFull toResponseFull(Product product);
+
+    @Mapping(target = "productId", source = "product.id")
+    ProductImageResponse toImageResponse(ProductImage productImage);
 
     default List<LabelResponse> mapLabels(List<ProductLabel> productLabels) {
         if (productLabels == null) return new ArrayList<>();
