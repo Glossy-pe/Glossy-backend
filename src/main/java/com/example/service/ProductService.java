@@ -60,9 +60,12 @@ public class ProductService {
 
     /* START: Product Controller V3 */
 
+    @Transactional
     public ProductResponse create(ProductRequest productRequest) {
         Product product = productMapper.toEntity(productRequest);
-        return productMapper.toResponse(productRepository.save(product));
+        Product saved = productRepository.save(product);
+        // ❌ Eliminar todo el bloque de imágenes
+        return productMapper.toResponse(saved);
     }
 
     public ProductResponse findById(Long productId){
@@ -73,6 +76,7 @@ public class ProductService {
         return productRepository.findAll().stream().map(productMapper::toResponse).toList();
     }
 
+    @Transactional
     public ProductResponse update(Long productId, ProductRequest productRequest) {
         Product existing = productRepository.findById(productId)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found"));
@@ -84,9 +88,8 @@ public class ProductService {
 
         Category category = categoryRepository.findById(productRequest.getCategoryId())
                 .orElseThrow(() -> new EntityNotFoundException("Category not found"));
-
         existing.setCategory(category);
-
+        // ❌ Sin lógica de imágenes aquí
         return productMapper.toResponse(productRepository.save(existing));
     }
 

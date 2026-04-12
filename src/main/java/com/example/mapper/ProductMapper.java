@@ -18,7 +18,7 @@ import java.util.List;
 public interface ProductMapper {
 
     @Mapping(target = "categoryId", source = "category.id")
-    @Mapping(target = "labels", source = "productLabels") // 👈 usa el método mapProductLabels
+    @Mapping(target = "labels", source = "productLabels")
     ProductResponse toResponse(Product product);
 
    @Mapping(target = "category", source = "categoryId")
@@ -26,7 +26,7 @@ public interface ProductMapper {
     @Mapping(target = "variants", ignore = true)
     @Mapping(target = "label", ignore = true)        // 👈
     @Mapping(target = "productLabels", ignore = true) // 👈
-    @Mapping(target = "images", ignore = true)        // 👈
+    @Mapping(target = "images", ignore = true)
     Product toEntity(ProductRequest productRequest);
 
     // Mapeo de ProductImage a ProductImageResponse
@@ -43,18 +43,17 @@ public interface ProductMapper {
 
     // 🔥 Método que convierte ProductLabel → LabelResponse
     default List<LabelResponse> mapProductLabels(List<ProductLabel> productLabels) {
-
         if (productLabels == null) {
             return new ArrayList<>();
         }
 
-        return productLabels.stream()
+        return new ArrayList<>(productLabels.stream()
                 .map(pl -> {
                     LabelResponse lr = new LabelResponse();
                     lr.setId(pl.getLabel().getId());
                     lr.setName(pl.getLabel().getName());
                     return lr;
                 })
-                .toList();
+                .toList()); // 👈 envuélvelo en new ArrayList<>()
     }
 }

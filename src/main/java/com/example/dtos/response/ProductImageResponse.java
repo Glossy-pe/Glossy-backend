@@ -9,6 +9,6 @@
         private Long id;
         private String url;
         private int position;
-        private boolean mainImage;
+        private Boolean mainImage;
         private Long productId;
     }
