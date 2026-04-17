@@ -12,6 +12,7 @@ public interface VariantMapper {
     
     @Mapping(target = "productId", source = "product.id")
     @Mapping(target = "productName", source = "product.name")
+    @Mapping(target = "images", source = "images")
     VariantResponse toResponse(ProductVariant productVariant);
 
     @Mapping(target = "product.id", source = "productId")

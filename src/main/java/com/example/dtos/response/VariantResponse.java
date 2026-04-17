@@ -1,6 +1,8 @@
 package com.example.dtos.response;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -18,4 +20,5 @@ public class VariantResponse {
     private int stock;
     private Integer position;
     private boolean active;
+    private List<VariantImageResponse> images = new ArrayList<>(); // 👈 nuevo campo
 }

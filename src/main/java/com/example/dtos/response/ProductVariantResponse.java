@@ -3,6 +3,8 @@ package com.example.dtos.response;
 import lombok.Getter;
 import lombok.Setter;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -17,5 +19,6 @@ public class ProductVariantResponse {
     private Integer stock;
     private Integer position;
     private Boolean active;
-    private String mainImageUrl; // 👈 nuevo campo
+    private String mainImageUrl;
+    private List<VariantImageResponse> variantImageResponses = new ArrayList<>(); // 👈 nuevo campo
 }
