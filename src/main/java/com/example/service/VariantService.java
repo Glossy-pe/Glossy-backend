@@ -69,4 +69,5 @@ public class VariantService {
 
         variantRepository.delete(variant);
     }
+
 }
