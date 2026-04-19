@@ -66,6 +66,7 @@ public class OrderService {
             OrderItem orderItem = new OrderItem();
             orderItem.setProductVariant(productVariant);
             orderItem.setQuantity(itemRequest.getQuantity());
+            orderItem.setSeparated(itemRequest.getSeparated());
             orderItem.setOrder(order);
 
             productVariant.setStock(
@@ -112,6 +113,7 @@ public class OrderService {
             OrderItem orderItem = new OrderItem();
             orderItem.setProductVariant(productVariant);
             orderItem.setQuantity(itemRequest.getQuantity());
+            orderItem.setSeparated(itemRequest.getSeparated());
             orderItem.setOrder(order);
 
             productVariant.setStock(productVariant.getStock() - itemRequest.getQuantity());

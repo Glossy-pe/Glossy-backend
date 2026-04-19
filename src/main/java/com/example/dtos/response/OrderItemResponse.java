@@ -9,4 +9,5 @@ public class OrderItemResponse {
     private Long id;
     private ProductVariantResponse productVariant;
     private int quantity;
+    private Boolean separated;
 }
