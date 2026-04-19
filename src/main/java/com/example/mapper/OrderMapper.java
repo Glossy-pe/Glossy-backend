@@ -7,10 +7,8 @@ import com.example.dtos.response.OrderResponse;
 import com.example.entity.Order;
 
 @Mapper(componentModel = "spring",
-    uses = { ProductVariantMapper.class })
+    uses = { ProductVariantMapper.class, OrderItemMapper.class })
 public interface OrderMapper {
-    
     OrderResponse toResponse(Order order);
-
     Order toEntity(OrderRequest request);
 }
