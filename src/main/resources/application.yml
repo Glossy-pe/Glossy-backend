@@ -22,4 +22,5 @@ server:
 
 meilisearch:
   host: http://meilisearch:7700
+  api-key: ""
   index: products
