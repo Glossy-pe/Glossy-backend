@@ -59,12 +59,6 @@ public class ProductController {
         return productService.findAllFull(pageable, categoryId, labelId);
     }
 
-    @GetMapping("/full/{id}")
-    public ProductResponseFull findByIdFull(@PathVariable Long id) {
-        return productService.findByIdFull(id);
-    }
-
-
     @GetMapping("/full/search")
     public Page<ProductResponseFull> search(
             @RequestParam(defaultValue = "") String q,
@@ -76,6 +70,14 @@ public class ProductController {
         Pageable pageable = PageRequest.of(page, size);
         return productService.searchFull(q, pageable, categoryId, labelId);
     }
+
+    @GetMapping("/full/{id}")
+    public ProductResponseFull findByIdFull(@PathVariable Long id) {
+        return productService.findByIdFull(id);
+    }
+
+
+    
 
     // Endpoint para re-indexar todos los productos existentes (usar una vez)
     @PostMapping("/reindex")
@@ -92,4 +94,11 @@ public class ProductController {
         productService.updateProductLabels(id, labelIds);
         return ResponseEntity.ok().build();
     }
+
+
+    @PostMapping("/migrate-slugs")
+public ResponseEntity<String> migrateSlugs() {
+    productService.migrateslugs();
+    return ResponseEntity.ok("Slugs migrados correctamente");
+}
 }
