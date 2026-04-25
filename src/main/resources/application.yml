@@ -22,5 +22,7 @@ server:
 
 meilisearch:
   host: http://meilisearch:7700
+  # host: http://localhost:7700
   api-key: ${MEILI_MASTER_KEY}
+  # api-key: "sk_live_tBqK88Ekw0lhpAyvN9TcFgqTj5G18PR8"
   index: products

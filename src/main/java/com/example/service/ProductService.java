@@ -7,6 +7,8 @@ import com.example.entity.*;
 import com.example.mapper.ProductMapper;
 import com.example.mapper.full.ProductMapperFull;
 import com.example.repository.*;
+import com.example.util.SlugUtils;
+
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,8 +68,8 @@ public class ProductService {
     @Transactional
     public ProductResponse create(ProductRequest productRequest) {
         Product product = productMapper.toEntity(productRequest);
+        product.setSlug(SlugUtils.toUniqueSlug(productRequest.getName(), productRepository));
         Product saved = productRepository.save(product);
-        // Indexar en Meilisearch (usamos findByIdFull para tener datos completos)
         meilisearchService.indexProduct(productMapperFull.toResponseFull(saved));
         return productMapper.toResponse(saved);
     }
@@ -86,6 +88,9 @@ public class ProductService {
                 .orElseThrow(() -> new EntityNotFoundException("Product not found"));
 
         existing.setName(productRequest.getName());
+        existing.setSlug(SlugUtils.toUniqueSlugForUpdate(
+            productRequest.getName(), productId, productRepository
+        ));
         existing.setDescription(productRequest.getDescription());
         existing.setFullDescription(productRequest.getFullDescription());
         existing.setActive(productRequest.getActive());
@@ -95,10 +100,7 @@ public class ProductService {
         existing.setCategory(category);
 
         Product saved = productRepository.save(existing);
-
-        // 👇 única línea nueva — actualiza el documento en Meilisearch
         meilisearchService.indexProduct(productMapperFull.toResponseFull(saved));
-
         return productMapper.toResponse(saved);
     }
 
@@ -159,4 +161,23 @@ public class ProductService {
             productLabelRepository.saveAll(newLabels);
         }
     }
+
+    @Transactional(readOnly = true)
+    public ProductResponseFull findBySlug(String slug) {
+        return productRepository.findBySlug(slug)
+            .map(productMapperFull::toResponseFull)
+            .orElseThrow(() -> new EntityNotFoundException("Product not found: " + slug));
+    }
+
+@Transactional
+public void migrateslugs() {
+    List<Product> products = productRepository.findAll();
+    for (Product product : products) {
+        if (product.getSlug() == null || product.getSlug().isBlank()) {
+            product.setSlug(SlugUtils.toUniqueSlug(product.getName(), productRepository));
+            productRepository.save(product);
+        }
+    }
+}
+    
 }

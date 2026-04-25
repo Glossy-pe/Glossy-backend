@@ -18,7 +18,7 @@ public class ProductResponseFull {
     private String fullDescription;
     private String label;
     private Boolean active;
-
+    private String slug;
     private Long categoryId;
 
     private List<VariantResponseFull> variants;
