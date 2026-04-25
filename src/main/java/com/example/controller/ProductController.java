@@ -69,10 +69,19 @@ public class ProductController {
     public Page<ProductResponseFull> search(
             @RequestParam(defaultValue = "") String q,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "200") int size
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) Long labelId
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        return productService.searchFull(q, pageable);
+        return productService.searchFull(q, pageable, categoryId, labelId);
+    }
+
+    // Endpoint para re-indexar todos los productos existentes (usar una vez)
+    @PostMapping("/reindex")
+    public ResponseEntity<String> reindex() {
+        productService.reindexAll();
+        return ResponseEntity.ok("Re-indexación iniciada");
     }
 
     @PutMapping("/{id}/labels")

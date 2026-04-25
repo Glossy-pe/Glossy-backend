@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.transaction.annotation.Transactional;
+
 @Service
 @RequiredArgsConstructor
 public class ProductService {
@@ -25,6 +26,9 @@ public class ProductService {
     private ProductRepository productRepository;
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private MeilisearchService meilisearchService;
 
     /* */
     @Autowired
@@ -50,7 +54,6 @@ public class ProductService {
                 .map(productMapperFull::toResponseFull);
     }
 
-
     @Transactional(readOnly = true)
     public ProductResponseFull findByIdFull(Long id) {
         return productRepository.findById(id)
@@ -64,11 +67,12 @@ public class ProductService {
     public ProductResponse create(ProductRequest productRequest) {
         Product product = productMapper.toEntity(productRequest);
         Product saved = productRepository.save(product);
-        // ❌ Eliminar todo el bloque de imágenes
+        // Indexar en Meilisearch (usamos findByIdFull para tener datos completos)
+        meilisearchService.indexProduct(productMapperFull.toResponseFull(saved));
         return productMapper.toResponse(saved);
     }
 
-    public ProductResponse findById(Long productId){
+    public ProductResponse findById(Long productId) {
         return productMapper.toResponse(productRepository.findById(productId).orElseThrow());
     }
 
@@ -89,38 +93,68 @@ public class ProductService {
         Category category = categoryRepository.findById(productRequest.getCategoryId())
                 .orElseThrow(() -> new EntityNotFoundException("Category not found"));
         existing.setCategory(category);
-        // ❌ Sin lógica de imágenes aquí
-        return productMapper.toResponse(productRepository.save(existing));
+
+        Product saved = productRepository.save(existing);
+
+        // 👇 única línea nueva — actualiza el documento en Meilisearch
+        meilisearchService.indexProduct(productMapperFull.toResponseFull(saved));
+
+        return productMapper.toResponse(saved);
     }
 
-    public void delete(Long id){
-        this.productRepository.deleteById(id);
+    public void delete(Long id) {
+        productRepository.deleteById(id);
+        meilisearchService.deleteProduct(id); // 👈
     }
 
-    public Page<ProductResponseFull> searchFull(String q, Pageable pageable) {
+    public Page<ProductResponseFull> searchFull(String q, Pageable pageable, Long categoryId, Long labelId) {
         if (q == null || q.isBlank()) {
-            return productRepository.findAll(pageable)
-                    .map(productMapperFull::toResponseFull);  // 👈 igual que findAllFull
+            return findAllFull(pageable, categoryId, labelId);
         }
-        return productRepository.findByNameContainingIgnoreCase(q, pageable)
-                .map(productMapperFull::toResponseFull);      // 👈 convierte Product → ProductResponseFull
+
+        int limit = pageable.getPageSize();
+        int offset = (int) pageable.getOffset();
+
+        List<Long> ids = meilisearchService.search(q, limit, offset, categoryId, labelId);
+
+        if (ids.isEmpty()) {
+            return Page.empty(pageable);
+        }
+
+        List<ProductResponseFull> results = ids.stream()
+                .map(id -> productRepository.findById(id).orElse(null))
+                .filter(p -> p != null)
+                .map(productMapperFull::toResponseFull)
+                .collect(Collectors.toList());
+
+        // Meilisearch no devuelve el total exacto fácilmente; usamos estimación
+        return new org.springframework.data.domain.PageImpl<>(results, pageable, results.size());
+    }
+
+    @Transactional(readOnly = true)
+    public void reindexAll() {
+        List<ProductResponseFull> all = productRepository.findAll()
+                .stream()
+                .map(productMapperFull::toResponseFull)
+                .collect(Collectors.toList());
+        meilisearchService.reindexAll(all);
     }
 
     @Transactional
     public void updateProductLabels(Long productId, List<Long> labelIds) {
         Product product = productRepository.findById(productId)
-            .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
         productLabelRepository.deleteByProductId(productId);
 
         if (labelIds != null && !labelIds.isEmpty()) {
             List<ProductLabel> newLabels = labelIds.stream()
-                .map(labelId -> {
-                    Label label = labelRepository.findById(labelId)
-                        .orElseThrow(() -> new RuntimeException("Label no encontrado: " + labelId));
-                    return new ProductLabel(product, label);
-                })
-                .collect(Collectors.toList());
+                    .map(labelId -> {
+                        Label label = labelRepository.findById(labelId)
+                                .orElseThrow(() -> new RuntimeException("Label no encontrado: " + labelId));
+                        return new ProductLabel(product, label);
+                    })
+                    .collect(Collectors.toList());
 
             productLabelRepository.saveAll(newLabels);
         }
