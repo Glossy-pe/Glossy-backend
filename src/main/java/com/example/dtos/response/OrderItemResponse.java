@@ -10,4 +10,5 @@ public class OrderItemResponse {
     private ProductVariantResponse productVariant;
     private int quantity;
     private Boolean separated;
+    private Boolean packed;
 }

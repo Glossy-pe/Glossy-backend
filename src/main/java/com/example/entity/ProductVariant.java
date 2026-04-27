@@ -28,7 +28,7 @@ public class ProductVariant {
     private String toneName;
 
     @Column(nullable = false)
-    private String toneCode;   // CL-01, MD-02
+    private String toneCode;
 
     @Column(nullable = true, precision = 10, scale = 2)
     private BigDecimal cost;

@@ -1,7 +1,7 @@
 package com.example.enums;
 
 public enum OrderStatus {
-
+    QUOTE,
     CREATED,    // Pedido creado, aún no pagado
     CANCELLED,
     CREADO,
