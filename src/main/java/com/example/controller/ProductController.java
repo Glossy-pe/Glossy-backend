@@ -97,8 +97,8 @@ public class ProductController {
 
 
     @PostMapping("/migrate-slugs")
-public ResponseEntity<String> migrateSlugs() {
-    productService.migrateslugs();
-    return ResponseEntity.ok("Slugs migrados correctamente");
-}
+    public ResponseEntity<String> migrateSlugs() {
+        productService.migrateslugs();
+        return ResponseEntity.ok("Slugs migrados correctamente");
+    }
 }

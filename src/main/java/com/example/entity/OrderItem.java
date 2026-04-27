@@ -32,5 +32,8 @@ public class OrderItem {
 
     @Column(nullable = true)
     private Boolean separated;
+
+    @Column(nullable = true)
+    private Boolean packed;
 }
 
