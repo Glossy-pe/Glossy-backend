@@ -31,8 +31,12 @@ public class OrderService {
     public Page<Order> findAll(String q, List<String> statusList, Pageable pageable) {
         boolean emptyStatus = statusList == null || statusList.isEmpty();
         List<String> list = emptyStatus ? List.of("") : statusList;
+        
+        // ← simplemente trim aquí
+        String cleanQ = q == null ? "" : q.trim().replaceAll("\\s+", " ");
+        
         return orderRepository.findAllByQuery(
-                q == null ? "" : q,
+                cleanQ,
                 list,
                 emptyStatus,
                 pageable);
