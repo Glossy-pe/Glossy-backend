@@ -28,11 +28,8 @@ public class ProductService {
     private ProductRepository productRepository;
     @Autowired
     private CategoryRepository categoryRepository;
-
     @Autowired
     private MeilisearchService meilisearchService;
-
-    /* */
     @Autowired
     private ProductMapper productMapper;
     @Autowired
@@ -45,25 +42,23 @@ public class ProductService {
     @Transactional(readOnly = true)
     public Page<ProductResponseFull> findAllFull(Pageable pageable, Long categoryId, Long labelId) {
         if (labelId != null) {
-            return productRepository.findByProductLabels_Label_Id(labelId, pageable)
+            return productRepository.findByProductLabels_Label_IdAndDeletedFalse(labelId, pageable)
                     .map(productMapperFull::toResponseFull);
         }
         if (categoryId != null) {
-            return productRepository.findByCategoryId(categoryId, pageable)
+            return productRepository.findByCategoryIdAndDeletedFalse(categoryId, pageable)
                     .map(productMapperFull::toResponseFull);
         }
-        return productRepository.findAll(pageable)
+        return productRepository.findAllByDeletedFalse(pageable)
                 .map(productMapperFull::toResponseFull);
     }
 
     @Transactional(readOnly = true)
     public ProductResponseFull findByIdFull(Long id) {
-        return productRepository.findById(id)
+        return productRepository.findByIdAndDeletedFalse(id)
                 .map(productMapperFull::toResponseFull)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
     }
-
-    /* START: Product Controller V3 */
 
     @Transactional
     public ProductResponse create(ProductRequest productRequest) {
@@ -74,22 +69,29 @@ public class ProductService {
         return productMapper.toResponse(saved);
     }
 
+    @Transactional(readOnly = true)
     public ProductResponse findById(Long productId) {
-        return productMapper.toResponse(productRepository.findById(productId).orElseThrow());
+        return productMapper.toResponse(
+                productRepository.findByIdAndDeletedFalse(productId).orElseThrow()
+        );
     }
 
+    @Transactional(readOnly = true)
     public List<ProductResponse> findAll() {
-        return productRepository.findAll().stream().map(productMapper::toResponse).toList();
+        return productRepository.findAllByDeletedFalse()
+                .stream()
+                .map(productMapper::toResponse)
+                .toList();
     }
 
     @Transactional
     public ProductResponse update(Long productId, ProductRequest productRequest) {
-        Product existing = productRepository.findById(productId)
+        Product existing = productRepository.findByIdAndDeletedFalse(productId)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found"));
 
         existing.setName(productRequest.getName());
         existing.setSlug(SlugUtils.toUniqueSlugForUpdate(
-            productRequest.getName(), productId, productRepository
+                productRequest.getName(), productId, productRepository
         ));
         existing.setDescription(productRequest.getDescription());
         existing.setFullDescription(productRequest.getFullDescription());
@@ -104,9 +106,17 @@ public class ProductService {
         return productMapper.toResponse(saved);
     }
 
+    @Transactional
     public void delete(Long id) {
-        productRepository.deleteById(id);
-        meilisearchService.deleteProduct(id); // 👈
+        Product product = productRepository.findByIdAndDeletedFalse(id)
+                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+
+        // ✅ Soft delete en vez de deleteById
+        product.softDelete();
+        productRepository.save(product);
+
+        // Eliminar de Meilisearch igual que antes
+        meilisearchService.deleteProduct(id);
     }
 
     public Page<ProductResponseFull> searchFull(String q, Pageable pageable, Long categoryId, Long labelId) {
@@ -124,18 +134,18 @@ public class ProductService {
         }
 
         List<ProductResponseFull> results = ids.stream()
-                .map(id -> productRepository.findById(id).orElse(null))
+                // ✅ Excluye eliminados al buscar por id
+                .map(id -> productRepository.findByIdAndDeletedFalse(id).orElse(null))
                 .filter(p -> p != null)
                 .map(productMapperFull::toResponseFull)
                 .collect(Collectors.toList());
 
-        // Meilisearch no devuelve el total exacto fácilmente; usamos estimación
         return new org.springframework.data.domain.PageImpl<>(results, pageable, results.size());
     }
 
     @Transactional(readOnly = true)
     public void reindexAll() {
-        List<ProductResponseFull> all = productRepository.findAll()
+        List<ProductResponseFull> all = productRepository.findAllByDeletedFalse()
                 .stream()
                 .map(productMapperFull::toResponseFull)
                 .collect(Collectors.toList());
@@ -144,7 +154,7 @@ public class ProductService {
 
     @Transactional
     public void updateProductLabels(Long productId, List<Long> labelIds) {
-        Product product = productRepository.findById(productId)
+        Product product = productRepository.findByIdAndDeletedFalse(productId)
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
         productLabelRepository.deleteByProductId(productId);
@@ -164,20 +174,19 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public ProductResponseFull findBySlug(String slug) {
-        return productRepository.findBySlug(slug)
-            .map(productMapperFull::toResponseFull)
-            .orElseThrow(() -> new EntityNotFoundException("Product not found: " + slug));
+        return productRepository.findBySlugAndDeletedFalse(slug)
+                .map(productMapperFull::toResponseFull)
+                .orElseThrow(() -> new EntityNotFoundException("Product not found: " + slug));
     }
 
-@Transactional
-public void migrateslugs() {
-    List<Product> products = productRepository.findAll();
-    for (Product product : products) {
-        if (product.getSlug() == null || product.getSlug().isBlank()) {
-            product.setSlug(SlugUtils.toUniqueSlug(product.getName(), productRepository));
-            productRepository.save(product);
+    @Transactional
+    public void migrateslugs() {
+        List<Product> products = productRepository.findAllByDeletedFalse();
+        for (Product product : products) {
+            if (product.getSlug() == null || product.getSlug().isBlank()) {
+                product.setSlug(SlugUtils.toUniqueSlug(product.getName(), productRepository));
+                productRepository.save(product);
+            }
         }
     }
-}
-    
 }

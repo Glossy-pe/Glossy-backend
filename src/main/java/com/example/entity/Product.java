@@ -14,7 +14,7 @@ import java.util.List;
 @Table(name = "product")
 
 @NoArgsConstructor
-public class Product {
+public class Product extends SoftDeletable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

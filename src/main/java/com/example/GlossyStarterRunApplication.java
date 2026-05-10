@@ -12,7 +12,7 @@ import com.example.service.ProductService;
 
 @SpringBootApplication
 @EnableAsync
-@EnableJpaAuditing(auditorAwareRef = "auditorAware")
+@EnableJpaAuditing
 public class GlossyStarterRunApplication {
     public static void main(String[] args) {
         SpringApplication.run(GlossyStarterRunApplication.class, args);

@@ -8,19 +8,16 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
 
 @Entity
 @Getter
 @Setter
 @Table(name = "orders")
-
 @NoArgsConstructor
 @AllArgsConstructor
-public class Order {
+public class Order extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,11 +46,8 @@ public class Order {
     @Column(nullable = true)
     private BigDecimal total;
 
-    @Column(nullable = true)
-    private LocalDateTime createdAt;
+    // ✅ createdAt eliminado — viene de Auditable automáticamente
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();
 }
-
-

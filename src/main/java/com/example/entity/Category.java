@@ -10,7 +10,7 @@ import lombok.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
-public class Category {
+public class Category extends SoftDeletable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -11,6 +11,23 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
+
+    // ── Con soft delete ──────────────────────────────────────────────
+
+    Optional<Product> findByIdAndDeletedFalse(Long id);
+
+    Page<Product> findAllByDeletedFalse(Pageable pageable);
+
+    List<Product> findAllByDeletedFalse();
+
+    Optional<Product> findBySlugAndDeletedFalse(String slug);
+
+    Page<Product> findByCategoryIdAndDeletedFalse(Long categoryId, Pageable pageable);
+
+    Page<Product> findByProductLabels_Label_IdAndDeletedFalse(Long labelId, Pageable pageable);
+
+    // ── Existentes (sin cambios) ─────────────────────────────────────
+
     List<Product> findByLabel(String label);
 
     @Query(value = """

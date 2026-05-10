@@ -9,24 +9,24 @@ import com.example.entity.Product;
 import com.example.entity.ProductVariant;
 import com.example.exception.ResourceNotFoundException;
 import com.example.repository.ProductRepository;
-import com.example.repository.VariantRepository;
+import com.example.repository.ProductVariantRepository;
 
 @Service
 @Transactional(readOnly = true)
 public class VariantService {
 
     private final ProductRepository productRepository;
-    private final VariantRepository variantRepository;
+    private final ProductVariantRepository variantRepository;
 
     public VariantService(ProductRepository productRepository,
-                          VariantRepository variantRepository) {
+                          ProductVariantRepository variantRepository) {
         this.productRepository = productRepository;
         this.variantRepository = variantRepository;
     }
 
     @Transactional
     public ProductVariant create(ProductVariant variant) {
-        Product product = productRepository.findById(variant.getProduct().getId())
+        Product product = productRepository.findByIdAndDeletedFalse(variant.getProduct().getId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Producto no encontrado con id: " + variant.getProduct().getId()));
 
@@ -35,18 +35,18 @@ public class VariantService {
     }
 
     public ProductVariant findById(Long variantId) {
-        return variantRepository.findById(variantId)
+        return variantRepository.findByIdAndDeletedFalse(variantId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Variante no encontrada con id: " + variantId));
     }
 
     public List<ProductVariant> findByProductId(Long productId) {
-        return variantRepository.findByProductId(productId);
+        return variantRepository.findByProductIdAndDeletedFalse(productId);
     }
 
     @Transactional
     public ProductVariant update(Long variantId, ProductVariant updatedVariant) {
-        ProductVariant variant = variantRepository.findById(variantId)
+        ProductVariant variant = variantRepository.findByIdAndDeletedFalse(variantId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Variante no encontrada con id: " + variantId));
 
@@ -57,17 +57,19 @@ public class VariantService {
         variant.setActive(updatedVariant.getActive());
         variant.setToneName(updatedVariant.getToneName());
         variant.setToneCode(updatedVariant.getToneCode());
+        // ✅ updatedAt se actualiza solo
 
         return variantRepository.save(variant);
     }
 
     @Transactional
     public void delete(Long variantId) {
-        ProductVariant variant = variantRepository.findById(variantId)
+        ProductVariant variant = variantRepository.findByIdAndDeletedFalse(variantId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Variante no encontrada con id: " + variantId));
 
-        variantRepository.delete(variant);
+        // ✅ Soft delete en vez de variantRepository.delete(variant)
+        variant.softDelete();
+        variantRepository.save(variant);
     }
-
 }

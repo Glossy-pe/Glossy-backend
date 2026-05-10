@@ -1,5 +1,7 @@
 package com.example.entity;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.Getter;
@@ -10,7 +12,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @Table(name = "order_item")
-
 @NoArgsConstructor
 public class OrderItem {
 
@@ -26,14 +27,60 @@ public class OrderItem {
     @Min(1)
     private int quantity;
 
+    @Column(nullable = false)
+    private int paidQuantity = 0;
+
+    @Column(nullable = false)
+    private int separatedQuantity = 0;
+
+    @Column(nullable = false)
+    private int packedQuantity = 0;
+
+    @Column(nullable = true)
+    private BigDecimal amountPaid;
+
     @ManyToOne
     @JoinColumn(name = "order_id")
     private Order order;
 
-    @Column(nullable = true)
-    private Boolean separated;
+    // --- helpers paid ---
 
-    @Column(nullable = true)
-    private Boolean packed;
+    public int getPendingQuantity() {
+        return quantity - paidQuantity;
+    }
+
+    public boolean isFullyPaid() {
+        if (amountPaid == null) return false;
+        return amountPaid.compareTo(getTotalPrice()) >= 0;
+    }
+
+    public BigDecimal getPendingAmount() {
+        if (amountPaid == null) return getTotalPrice();
+        return getTotalPrice().subtract(amountPaid);
+    }
+
+    public BigDecimal getTotalPrice() {
+        return productVariant.getPrice()
+            .multiply(BigDecimal.valueOf(quantity));
+    }
+
+    // --- helpers separated ---
+
+    public int getPendingSeparatedQuantity() {
+        return quantity - separatedQuantity;
+    }
+
+    public boolean isFullySeparated() {
+        return separatedQuantity >= quantity;
+    }
+
+    // --- helpers packed ---
+
+    public int getPendingPackedQuantity() {
+        return quantity - packedQuantity;
+    }
+
+    public boolean isFullyPacked() {
+        return packedQuantity >= quantity;
+    }
 }
-

@@ -28,13 +28,13 @@ public class OrderController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "") String q,
-            @RequestParam(defaultValue = "") String status
-    ) {
+            @RequestParam(defaultValue = "") String status,
+            @RequestParam(required = false) Long variantId) {
         List<String> statusList = status.isBlank()
                 ? List.of()
                 : List.of(status.split(","));
 
-        return orderService.findAll(q, statusList, PageRequest.of(page, size))
+        return orderService.findAll(q, statusList, variantId, PageRequest.of(page, size))
                 .map(orderMapper::toResponse);
     }
 

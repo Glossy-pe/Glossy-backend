@@ -9,16 +9,13 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.events.VariantEntityListener;
-
 @Entity
 @Getter
 @Setter
 @Table(name = "product_variant")
 
 @NoArgsConstructor
-@EntityListeners(VariantEntityListener.class)
-public class ProductVariant {
+public class ProductVariant extends SoftDeletable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

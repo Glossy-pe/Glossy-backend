@@ -8,8 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.entity.ProductVariant;
 import com.example.entity.ProductVariantImage;
 import com.example.exception.ResourceNotFoundException;
+import com.example.repository.ProductVariantRepository;
 import com.example.repository.VariantImageRepository;
-import com.example.repository.VariantRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 public class VariantImageService {
 
     private final VariantImageRepository imageRepository;
-    private final VariantRepository variantRepository;
+    private final ProductVariantRepository variantRepository;
 
     @Transactional
     public ProductVariantImage create(ProductVariantImage image) {

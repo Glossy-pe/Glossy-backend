@@ -1,6 +1,5 @@
 package com.example.service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,18 +27,16 @@ public class OrderService {
     @Autowired
     private ProductVariantRepository productVariantRepository;
 
-    public Page<Order> findAll(String q, List<String> statusList, Pageable pageable) {
+    public Page<Order> findAll(String q, List<String> statusList, Long variantId, Pageable pageable) {
         boolean emptyStatus = statusList == null || statusList.isEmpty();
         List<String> list = emptyStatus ? List.of("") : statusList;
-        
-        // ← simplemente trim aquí
-        String cleanQ = q == null ? "" : q.trim().replaceAll("\\s+", " ");
-        
-        return orderRepository.findAllByQuery(
-                cleanQ,
-                list,
-                emptyStatus,
-                pageable);
+        String cleanQ = q == null ? "" : q.trim();
+
+        if (variantId != null) {
+            return orderRepository.findAllByVariantId(variantId, list, emptyStatus, pageable);
+        }
+
+        return orderRepository.findAllByQuery(cleanQ, list, emptyStatus, pageable);
     }
 
     public Order findById(Long orderId) {
@@ -56,7 +53,7 @@ public class OrderService {
         order.setCustomerAddress(request.getCustomerAddress());
         order.setTotal(request.getTotal());
         order.setCostTotal(request.getCostTotal());
-        order.setCreatedAt(LocalDateTime.now());
+        // ✅ createdAt ya no se setea manualmente, Auditable lo hace solo
 
         List<OrderItem> orderItems = request.getOrderItems().stream().map(itemRequest -> {
             ProductVariant productVariant = productVariantRepository
@@ -66,11 +63,12 @@ public class OrderService {
             OrderItem orderItem = new OrderItem();
             orderItem.setProductVariant(productVariant);
             orderItem.setQuantity(itemRequest.getQuantity());
-            orderItem.setSeparated(itemRequest.getSeparated());
-            orderItem.setPacked(itemRequest.getPacked());
+            orderItem.setPaidQuantity(itemRequest.getPaidQuantity());
+            orderItem.setAmountPaid(itemRequest.getAmountPaid());
+            orderItem.setSeparatedQuantity(itemRequest.getSeparatedQuantity());
+            orderItem.setPackedQuantity(itemRequest.getPackedQuantity());
             orderItem.setOrder(order);
 
-            // Solo descuenta stock si NO es QUOTE
             if (request.getStatus() != OrderStatus.QUOTE) {
                 if (productVariant.getStock() < itemRequest.getQuantity()) {
                     throw new RuntimeException("Stock insuficiente para el producto: " + productVariant.getId());
@@ -96,9 +94,6 @@ public class OrderService {
         boolean wasQuote = previousStatus == OrderStatus.QUOTE;
         boolean isNowQuote = newStatus == OrderStatus.QUOTE;
 
-        // Si NO era QUOTE y NO sigue siendo QUOTE → devolver stock de items anteriores
-        // Si ERA QUOTE y ahora NO es QUOTE → no hay stock que devolver
-        // Si NO era QUOTE y ahora ES QUOTE → devolver stock de items anteriores
         if (!wasQuote) {
             order.getOrderItems().forEach(existingItem -> {
                 ProductVariant variant = existingItem.getProductVariant();
@@ -112,6 +107,7 @@ public class OrderService {
         order.setCostTotal(request.getCostTotal());
         order.setCustomerName(request.getCustomerName());
         order.setCustomerAddress(request.getCustomerAddress());
+        // ✅ updatedAt se actualiza solo por @LastModifiedDate
 
         List<OrderItem> updatedItems = request.getOrderItems().stream().map(itemRequest -> {
             ProductVariant productVariant = productVariantRepository
@@ -121,11 +117,12 @@ public class OrderService {
             OrderItem orderItem = new OrderItem();
             orderItem.setProductVariant(productVariant);
             orderItem.setQuantity(itemRequest.getQuantity());
-            orderItem.setSeparated(itemRequest.getSeparated());
-            orderItem.setPacked(itemRequest.getPacked());
+            orderItem.setPaidQuantity(itemRequest.getPaidQuantity());
+            orderItem.setAmountPaid(itemRequest.getAmountPaid());
+            orderItem.setSeparatedQuantity(itemRequest.getSeparatedQuantity());
+            orderItem.setPackedQuantity(itemRequest.getPackedQuantity());
             orderItem.setOrder(order);
 
-            // Solo descuenta stock si el nuevo estado NO es QUOTE
             if (!isNowQuote) {
                 if (productVariant.getStock() < itemRequest.getQuantity()) {
                     throw new RuntimeException("Stock insuficiente para el producto: " + productVariant.getId());
@@ -142,10 +139,11 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
+    @Transactional
     public void delete(Long orderId) {
-        Order order = orderRepository.findById(orderId).orElseThrow();
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
 
-        // Solo devuelve stock si NO era QUOTE
         if (order.getStatus() != OrderStatus.QUOTE) {
             order.getOrderItems().forEach(orderItem -> {
                 ProductVariant productVariant = orderItem.getProductVariant();
@@ -156,5 +154,4 @@ public class OrderService {
 
         orderRepository.deleteById(orderId);
     }
-
 }

@@ -13,7 +13,7 @@ import lombok.Setter;
 @Table(name = "cart_item")
 
 @NoArgsConstructor
-public class CartItem {
+public class CartItem extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
