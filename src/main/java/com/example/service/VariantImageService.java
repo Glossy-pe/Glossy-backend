@@ -49,7 +49,7 @@ public class VariantImageService {
 
         image.setUrl(updatedImage.getUrl());
         image.setPosition(updatedImage.getPosition());
-        image.setMainImage(updatedImage.isMainImage());
+        image.setMainImage(updatedImage.getMainImage());
 
         return imageRepository.save(image);
     }

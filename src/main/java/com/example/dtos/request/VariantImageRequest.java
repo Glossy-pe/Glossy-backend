@@ -19,5 +19,5 @@ public class VariantImageRequest {
     @Min(1)
     private Integer position;
 
-    private boolean mainImage;
+    private Boolean mainImage;
 }

@@ -2,8 +2,11 @@ package com.example.controller;
 
 import com.example.dtos.request.product.ProductRequest;
 import com.example.dtos.response.product.ProductResponse;
+import com.example.dtos.response.StockAlertResponse;
 import com.example.dtos.response.full.ProductResponseFull;
 import com.example.service.ProductService;
+import com.example.service.StockAlertService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +21,10 @@ public class ProductController {
 
     @Autowired
     private ProductService productService;
+
+
+    @Autowired
+    private StockAlertService stockAlertService;
 
     @PostMapping("")
     public ProductResponse create(@RequestBody ProductRequest productRequestV2){
@@ -100,5 +107,12 @@ public class ProductController {
     public ResponseEntity<String> migrateSlugs() {
         productService.migrateslugs();
         return ResponseEntity.ok("Slugs migrados correctamente");
+    }
+
+    @GetMapping("/stock-alerts")
+    public ResponseEntity<List<StockAlertResponse>> getStockAlerts(
+            @RequestParam(defaultValue = "7") int days
+    ) {
+        return ResponseEntity.ok(stockAlertService.getStockAlerts());
     }
 }

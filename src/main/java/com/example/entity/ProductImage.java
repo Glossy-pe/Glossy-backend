@@ -25,7 +25,7 @@ public class ProductImage extends Auditable{
     private int position;
 
     @Column(nullable = true)
-    private boolean mainImage;
+    private Boolean mainImage;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)

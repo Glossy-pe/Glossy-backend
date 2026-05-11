@@ -37,5 +37,5 @@ public class VariantRequest {
     @Min(1)
     private Integer position;
 
-    private boolean active = true;
+    private Boolean active = true;
 }

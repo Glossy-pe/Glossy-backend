@@ -17,6 +17,6 @@ public class ProductVariantRequest {
     private BigDecimal cost;
     private int stock;
     private Integer position;
-    private boolean active;
+    private Boolean active;
     private List<VariantImageRequest> productVariantImageRequests = new ArrayList<>();
 }

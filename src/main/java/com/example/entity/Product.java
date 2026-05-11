@@ -38,7 +38,7 @@ public class Product extends SoftDeletable{
     private List<ProductLabel> productLabels = new ArrayList<>();
 
     @Column(nullable = false)
-    private boolean active = true;
+    private Boolean active = true;
 
     @ManyToOne
     @JoinColumn(name = "category_id")

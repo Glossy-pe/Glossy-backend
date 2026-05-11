@@ -13,7 +13,7 @@ import lombok.Setter;
 public abstract class SoftDeletable extends Auditable {
 
     @Column(nullable = false)
-    private boolean deleted = false;
+    private Boolean deleted = false;
 
     private LocalDateTime deletedAt;
 

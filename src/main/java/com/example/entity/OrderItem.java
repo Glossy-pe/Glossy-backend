@@ -49,7 +49,7 @@ public class OrderItem {
         return quantity - paidQuantity;
     }
 
-    public boolean isFullyPaid() {
+    public Boolean isFullyPaid() {
         if (amountPaid == null) return false;
         return amountPaid.compareTo(getTotalPrice()) >= 0;
     }
@@ -70,7 +70,7 @@ public class OrderItem {
         return quantity - separatedQuantity;
     }
 
-    public boolean isFullySeparated() {
+    public Boolean isFullySeparated() {
         return separatedQuantity >= quantity;
     }
 
@@ -80,7 +80,7 @@ public class OrderItem {
         return quantity - packedQuantity;
     }
 
-    public boolean isFullyPacked() {
+    public Boolean isFullyPacked() {
         return packedQuantity >= quantity;
     }
 }

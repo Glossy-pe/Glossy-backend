@@ -26,7 +26,7 @@ public interface ProductVariantMapper {
     default String toMainImageUrl(List<ProductVariantImage> images) {
         if (images == null || images.isEmpty()) return null;
         return images.stream()
-                .filter(ProductVariantImage::isMainImage)
+                .filter(ProductVariantImage::getMainImage) // busca la imagen marcada como principal
                 .findFirst()
                 .map(ProductVariantImage::getUrl)
                 .orElse(images.get(0).getUrl()); // fallback a la primera si ninguna es main

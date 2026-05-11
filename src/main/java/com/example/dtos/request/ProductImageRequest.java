@@ -8,5 +8,5 @@ import lombok.Setter;
 public class ProductImageRequest {
     private String url;
     private int position;
-    private boolean mainImage;
+    private Boolean mainImage;
 }
