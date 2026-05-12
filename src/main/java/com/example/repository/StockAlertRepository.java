@@ -26,8 +26,6 @@ public interface StockAlertRepository extends JpaRepository<StockAlert, Long> {
         ORDER BY pv.stock ASC
     """)
     List<StockAlert> findActiveAlerts();
-
-
     List<StockAlert> findAllByDismissedTrue();
 
 }

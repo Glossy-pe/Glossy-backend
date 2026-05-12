@@ -25,23 +25,15 @@ public class StockAlertService {
 @Transactional
 public void syncAlerts() {
 
-    // ── 1. Limpiar dismissals de variantes que ya superaron el umbral ──
-    // Si el stock subió a ≥ 2, el dismiss ya cumplió su propósito: resetear
-    stockAlertRepository.findAllByDismissedTrue().forEach(alert -> {
-        Integer stockActual = alert.getProductVariant().getStock();
-        if (stockActual >= 2) {          // salió de zona crítica → limpiar dismiss
-            alert.setDismissed(false);
-            alert.setDismissedAtStock(null);
-            alert.setDismissedAt(null);
-            stockAlertRepository.save(alert);
+    // ── 1. Eliminar alertas cuya variante ya tiene stock suficiente ──
+    stockAlertRepository.findAll().forEach(alert -> {
+        if (alert.getProductVariant().getStock() >= 2) {
+            stockAlertRepository.delete(alert);
         }
     });
 
-    // ── 2. Crear alertas nuevas para variantes sin alerta aún ──
-    List<ProductVariant> lowStock = variantRepository
-        .findByStockLessThanAndDeletedFalse(2);
-
-    for (ProductVariant variant : lowStock) {
+    // ── 2. Crear alertas para variantes en zona crítica sin alerta ──
+    variantRepository.findByStockLessThanAndDeletedFalse(2).forEach(variant -> {
         boolean existe = stockAlertRepository
             .findByProductVariantId(variant.getId())
             .isPresent();
@@ -51,9 +43,11 @@ public void syncAlerts() {
             alert.setProductVariant(variant);
             stockAlertRepository.save(alert);
         }
-    }
+    });
 }
-    public List<StockAlertResponse> getActiveAlerts() {
+
+
+public List<StockAlertResponse> getActiveAlerts() {
         return stockAlertRepository.findActiveAlerts()
             .stream()
             .map(this::toResponse)
