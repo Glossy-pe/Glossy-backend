@@ -22,33 +22,37 @@ public class StockAlertService {
     private final ProductVariantRepository variantRepository;
 
     // Sincroniza variantes con stock < 2 que aún no tienen StockAlert creada
-    @Transactional
-    public void syncAlerts() {
-        List<ProductVariant> lowStock = variantRepository.findByStockLessThanAndDeletedFalse(2);
+@Transactional
+public void syncAlerts() {
 
-        for (ProductVariant variant : lowStock) {
-            stockAlertRepository.findByProductVariantId(variant.getId())
-                .ifPresentOrElse(
-                    existing -> {
-                        // Si estaba descartada y el stock bajó más → resetear
-                        if (existing.isDismissed()
-                                && variant.getStock() < existing.getDismissedAtStock()) {
-                            existing.setDismissed(false);
-                            existing.setDismissedAtStock(null);
-                            existing.setDismissedAt(null);
-                            stockAlertRepository.save(existing);
-                        }
-                    },
-                    () -> {
-                        // Crear alerta nueva
-                        StockAlert alert = new StockAlert();
-                        alert.setProductVariant(variant);
-                        stockAlertRepository.save(alert);
-                    }
-                );
+    // ── 1. Limpiar dismissals de variantes que ya superaron el umbral ──
+    // Si el stock subió a ≥ 2, el dismiss ya cumplió su propósito: resetear
+    stockAlertRepository.findAllByDismissedTrue().forEach(alert -> {
+        Integer stockActual = alert.getProductVariant().getStock();
+        if (stockActual >= 2) {          // salió de zona crítica → limpiar dismiss
+            alert.setDismissed(false);
+            alert.setDismissedAtStock(null);
+            alert.setDismissedAt(null);
+            stockAlertRepository.save(alert);
+        }
+    });
+
+    // ── 2. Crear alertas nuevas para variantes sin alerta aún ──
+    List<ProductVariant> lowStock = variantRepository
+        .findByStockLessThanAndDeletedFalse(2);
+
+    for (ProductVariant variant : lowStock) {
+        boolean existe = stockAlertRepository
+            .findByProductVariantId(variant.getId())
+            .isPresent();
+
+        if (!existe) {
+            StockAlert alert = new StockAlert();
+            alert.setProductVariant(variant);
+            stockAlertRepository.save(alert);
         }
     }
-
+}
     public List<StockAlertResponse> getActiveAlerts() {
         return stockAlertRepository.findActiveAlerts()
             .stream()
