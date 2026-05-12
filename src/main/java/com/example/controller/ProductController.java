@@ -109,10 +109,10 @@ public class ProductController {
         return ResponseEntity.ok("Slugs migrados correctamente");
     }
 
-    @GetMapping("/stock-alerts")
-    public ResponseEntity<List<StockAlertResponse>> getStockAlerts(
-            @RequestParam(defaultValue = "7") int days
-    ) {
-        return ResponseEntity.ok(stockAlertService.getStockAlerts());
-    }
+    // @GetMapping("/stock-alerts")
+    // public ResponseEntity<List<StockAlertResponse>> getStockAlerts(
+    //         @RequestParam(defaultValue = "7") int days
+    // ) {
+    //     return ResponseEntity.ok(stockAlertService.getStockAlerts());
+    // }
 }

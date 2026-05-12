@@ -15,4 +15,7 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
     // ── Existentes ───────────────────────────────────────────────
     Optional<ProductVariant> findByIdAndProductId(Long id, Long productId);
     List<ProductVariant> findByProductId(Long productId);
+
+    List<ProductVariant> findByStockLessThanAndDeletedFalse(int stock);
+
 }

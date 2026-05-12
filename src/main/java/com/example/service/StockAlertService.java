@@ -1,107 +1,89 @@
 package com.example.service;
 
 import com.example.dtos.response.StockAlertResponse;
-import com.example.repository.ProductRepository;
-import com.example.repository.projection.StockAlertProjection;
+import com.example.entity.ProductVariant;
+import com.example.entity.StockAlert;
+import com.example.exception.ResourceNotFoundException;
+import com.example.repository.ProductVariantRepository;
+import com.example.repository.StockAlertRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class StockAlertService {
 
-    private final ProductRepository productRepository;
+    private final StockAlertRepository stockAlertRepository;
+    private final ProductVariantRepository variantRepository;
 
-@Transactional(readOnly = true)
-public List<StockAlertResponse> getStockAlerts() {
-    List<StockAlertProjection> rows = productRepository.findStockAlerts();
+    // Sincroniza variantes con stock < 2 que aún no tienen StockAlert creada
+    @Transactional
+    public void syncAlerts() {
+        List<ProductVariant> lowStock = variantRepository.findByStockLessThanAndDeletedFalse(2);
 
-    Map<Long, List<StockAlertProjection>> byProduct = rows.stream()
-            .collect(Collectors.groupingBy(
-                    StockAlertProjection::getProductId,
-                    LinkedHashMap::new,
-                    Collectors.toList()
-            ));
+        for (ProductVariant variant : lowStock) {
+            stockAlertRepository.findByProductVariantId(variant.getId())
+                .ifPresentOrElse(
+                    existing -> {
+                        // Si estaba descartada y el stock bajó más → resetear
+                        if (existing.isDismissed()
+                                && variant.getStock() < existing.getDismissedAtStock()) {
+                            existing.setDismissed(false);
+                            existing.setDismissedAtStock(null);
+                            existing.setDismissedAt(null);
+                            stockAlertRepository.save(existing);
+                        }
+                    },
+                    () -> {
+                        // Crear alerta nueva
+                        StockAlert alert = new StockAlert();
+                        alert.setProductVariant(variant);
+                        stockAlertRepository.save(alert);
+                    }
+                );
+        }
+    }
 
-    return byProduct.entrySet().stream()
-            .map(entry -> buildResponse(entry.getValue()))
-            .sorted(Comparator.comparingDouble(StockAlertResponse::getUrgencyScore).reversed())
-            .collect(Collectors.toList());
-}
+    public List<StockAlertResponse> getActiveAlerts() {
+        return stockAlertRepository.findActiveAlerts()
+            .stream()
+            .map(this::toResponse)
+            .toList();
+    }
 
-private StockAlertResponse buildResponse(List<StockAlertProjection> rows) {
-    StockAlertProjection first = rows.get(0);
+    @Transactional
+    public void dismiss(Long alertId) {
+        StockAlert alert = stockAlertRepository.findById(alertId)
+            .orElseThrow(() -> new ResourceNotFoundException(
+                "Alerta no encontrada con id: " + alertId));
 
-    // Todas las rows ya son variantes críticas (stock < 2 viene filtrado de la query)
-    int totalStock = rows.stream()
-            .mapToInt(r -> r.getVariantStock() != null ? r.getVariantStock() : 0)
-            .sum();
+        alert.setDismissed(true);
+        alert.setDismissedAtStock(alert.getProductVariant().getStock());
+        alert.setDismissedAt(LocalDateTime.now());
+        stockAlertRepository.save(alert);
+    }
 
-    long recentSales = rows.stream()
-            .mapToLong(r -> r.getVariantRecentSales() != null ? r.getVariantRecentSales() : 0)
-            .sum();
+    private StockAlertResponse toResponse(StockAlert alert) {
+        ProductVariant pv = alert.getProductVariant();
 
-    long hotSales = rows.stream()
-            .mapToLong(r -> r.getVariantHotSales() != null ? r.getVariantHotSales() : 0)
-            .sum();
+        String firstImageUrl = (pv.getImages() != null && !pv.getImages().isEmpty())
+            ? pv.getImages().get(0).getUrl()   // ajusta al campo real de tu ProductVariantImage
+            : null;
 
-    int outOfStockCount = (int) rows.stream()
-            .filter(r -> r.getVariantStock() != null && r.getVariantStock() == 0)
-            .count();
-
-    int criticalCount = rows.size(); // todas son críticas
-
-    List<StockAlertResponse.CriticalVariantDto> criticalVariants = rows.stream()
-            .sorted(Comparator.comparingInt(r -> r.getVariantStock() != null ? r.getVariantStock() : 0))
-            .map(r -> StockAlertResponse.CriticalVariantDto.builder()
-                    .variantId(r.getVariantId())
-                    .toneName(r.getToneName())
-                    .toneCode(r.getToneCode())
-                    .stock(r.getVariantStock() != null ? r.getVariantStock() : 0)
-                    .recentSales(r.getVariantRecentSales() != null ? r.getVariantRecentSales() : 0)
-                    .hotSales(r.getVariantHotSales() != null ? r.getVariantHotSales() : 0)
-                    .build())
-            .collect(Collectors.toList());
-
-    double score = calcScore(outOfStockCount, criticalCount, totalStock, recentSales, hotSales);
-
-    return StockAlertResponse.builder()
-            .productId(first.getProductId())
-            .productName(first.getProductName())
-            .productSlug(first.getProductSlug())
-            .mainImageUrl(first.getMainImageUrl())
-            .totalStock(totalStock)
-            .criticalVariantCount(criticalCount)
-            .outOfStockCount(outOfStockCount)
-            .recentSales(recentSales)
-            .hotSales(hotSales)
-            .urgencyScore(score)
-            .hasCritical(true) // siempre true porque la query ya filtró
-            .criticalVariants(criticalVariants)
-            .build();
-}
-private double calcScore(int outOfStock, int criticalCount, int totalStock, long recentSales, long hotSales) {
-    double score = 0;
-
-    // Ventas últimas 24h — peso máximo, esto es lo que más importa
-    score += hotSales * 50.0;
-
-    // Ventas últimos 7 días — peso secundario
-    score += recentSales * 10.0;
-
-    // Penalización por stock bajo — desempata entre productos con ventas similares
-    score += Math.max(0, 100 - totalStock);
-
-    // Variantes agotadas — señal de urgencia adicional
-    score += outOfStock * 20.0;
-
-    // Variantes con solo 1 unidad
-    score += (criticalCount - outOfStock) * 5.0;
-
-    return score;
-}
+        return new StockAlertResponse(
+            alert.getId(),
+            pv.getId(),
+            pv.getToneName(),
+            pv.getToneCode(),
+            pv.getStock(),
+            alert.isDismissed(),
+            alert.getDismissedAt(),
+            firstImageUrl
+        );
+    }
 }
