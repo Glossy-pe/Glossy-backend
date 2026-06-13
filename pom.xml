@@ -24,6 +24,8 @@
     </properties>
 
     <dependencies>
+
+        <!-- ✅ Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -31,44 +33,44 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- ✅ WebFlux (reactor, netty, controladores reactivos) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
 
+        <!-- ✅ R2DBC (reemplaza spring-boot-starter-data-jpa) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-r2dbc</artifactId>
+        </dependency>
+
+        <!-- ✅ Driver R2DBC para PostgreSQL (reemplaza el driver JDBC) -->
         <dependency>
             <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
+            <artifactId>r2dbc-postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-
+        <!-- ✅ Validation -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
+        <!-- ✅ SpringDoc OpenAPI para WebFlux -->
         <dependency>
             <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
             <version>2.5.0</version>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.boot</groupId>-->
-<!--            <artifactId>spring-boot-starter-security</artifactId>-->
-<!--        </dependency>-->
-
+        <!-- ✅ MapStruct -->
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
             <version>1.5.5.Final</version>
         </dependency>
-
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct-processor</artifactId>
@@ -76,21 +78,11 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- ✅ Spring Dotenv -->
         <dependency>
             <groupId>me.paulschwarz</groupId>
             <artifactId>spring-dotenv</artifactId>
             <version>4.0.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.meilisearch.sdk</groupId>
-            <artifactId>meilisearch-java</artifactId>
-            <version>0.14.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-jpa</artifactId>
         </dependency>
 
     </dependencies>
@@ -104,35 +96,33 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
-            <!-- Compiler + Lombok + MapStruct -->
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <version>3.11.0</version>
-            <configuration>
-                <annotationProcessorPaths>
-                    <path>
-                        <groupId>org.projectlombok</groupId>
-                        <artifactId>lombok</artifactId>
-                        <version>1.18.40</version>
-                    </path>
-                    <!-- Este es el que falta: garantiza el orden Lombok → MapStruct -->
-                    <path>
-                        <groupId>org.projectlombok</groupId>
-                        <artifactId>lombok-mapstruct-binding</artifactId>
-                        <version>0.2.0</version>
-                    </path>
-                    <path>
-                        <groupId>org.mapstruct</groupId>
-                        <artifactId>mapstruct-processor</artifactId>
-                        <version>1.5.5.Final</version>
-                    </path>
-                </annotationProcessorPaths>
-            </configuration>
-        </plugin>
+            <!-- Compiler + Lombok + MapStruct (orden garantizado) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.40</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-mapstruct-binding</artifactId>
+                            <version>0.2.0</version>
+                        </path>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>1.5.5.Final</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
 
         </plugins>
     </build>
-
 
 </project>

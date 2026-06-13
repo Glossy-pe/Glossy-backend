@@ -26,4 +26,13 @@ public class GlobalExceptionHandler {
     public Map<String, String> handleNotFound(ResourceNotFoundException ex) {
         return Map.of("error", ex.getMessage());
     }
+
+    @ExceptionHandler(DuplicateOrderItemException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public Map<String, String> handleDuplicate(DuplicateOrderItemException ex) {
+        return Map.of(
+                "error", "DUPLICATE_ORDER_ITEM",
+                "message", ex.getMessage()
+        );
+    }
 }

@@ -1,26 +1,20 @@
 package com.example.entity;
 
-import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 
-@Entity
 @Getter
 @Setter
-@Table(name = "category")
-
 @NoArgsConstructor
 @AllArgsConstructor
-public class Category extends SoftDeletable{
+@Table("category")
+public class Category extends SoftDeletable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
     private String name;
 
-    @Column(length = 10000)
     private String image;
 }
-
-

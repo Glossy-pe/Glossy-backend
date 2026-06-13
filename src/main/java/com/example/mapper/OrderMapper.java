@@ -1,14 +1,22 @@
 package com.example.mapper;
 
-import org.mapstruct.Mapper;
-
-import com.example.dtos.request.OrderRequest;
-import com.example.dtos.response.OrderResponse;
+import com.example.dto.admin.request.order.OrderRequest;
+import com.example.dto.admin.response.order.OrderResponse;
+import com.example.dto.admin.response.order.OrderResponseFull;
 import com.example.entity.Order;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
-@Mapper(componentModel = "spring",
-    uses = { ProductVariantMapper.class, OrderItemMapper.class })
+@Mapper(componentModel = "spring")
 public interface OrderMapper {
-    OrderResponse toResponse(Order order);
+
+    OrderResponse toResponse(Order entity);
+
     Order toEntity(OrderRequest request);
+
+    @Mapping(target = "items", ignore = true)
+    OrderResponseFull toResponseFull(Order entity);
+
+    void updateEntity(OrderRequest request, @MappingTarget Order product);
 }

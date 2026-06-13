@@ -1,23 +1,25 @@
 package com.example.mapper;
 
+import com.example.dto.admin.request.variant.VariantRequest;
+import com.example.dto.admin.response.variant.VariantResponse;
+import com.example.dto.admin.response.variant.VariantResponseFull;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.example.dtos.request.VariantRequest;
-import com.example.dtos.response.VariantResponse;
 import com.example.entity.ProductVariant;
+import org.mapstruct.MappingTarget;
+
 
 @Mapper(componentModel = "spring")
 public interface VariantMapper {
     
-    @Mapping(target = "productId", source = "product.id")
-    @Mapping(target = "productName", source = "product.name")
-    @Mapping(target = "images", source = "images")
-    VariantResponse toResponse(ProductVariant productVariant);
-
-    @Mapping(target = "product.id", source = "productId")
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "orderItems", ignore = true)
     @Mapping(target = "images", ignore = true)
-    ProductVariant toEntity(VariantRequest variantRequest);
+    VariantResponseFull toResponseFull(ProductVariant variant);
+
+    VariantResponse toResponse(ProductVariant variant);
+
+    ProductVariant toEntity(VariantRequest request);
+
+    void updateEntity(VariantRequest request, @MappingTarget ProductVariant variant);
+
 }

@@ -1,13 +1,11 @@
 package com.example.repository;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 
 import com.example.entity.ProductVariantImage;
 
-public interface VariantImageRepository extends JpaRepository<ProductVariantImage, Long>{
-    Optional<ProductVariantImage> findByIdAndProductVariantId(Long id, Long productVariantId);
-    List<ProductVariantImage> findByProductVariantId(Long variantId);
+import reactor.core.publisher.Flux;
+
+public interface VariantImageRepository extends ReactiveCrudRepository<ProductVariantImage, Long> {
+    Flux<ProductVariantImage> findByProductVariantId(Long productVariantId);
 }

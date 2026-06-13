@@ -5,6 +5,19 @@ TRUNCATE TABLE product_image CASCADE;
 TRUNCATE TABLE product_variant CASCADE;
 TRUNCATE TABLE product CASCADE;
 TRUNCATE TABLE category CASCADE;
+TRUNCATE TABLE order_status CASCADE;
+
+-- ==================================================================================
+-- ESTADOS DE PEDIDO
+INSERT INTO order_status (id, code, description) VALUES
+(1, 'QUOTE', 'Cotización'),
+(2, 'CREATED', 'Pedido creado, aún no pagado'),
+(3, 'CANCELLED', 'Pedido cancelado'),
+(4, 'ACUMULANDO', 'En acumulación'),
+(5, 'PENDIENTE_PACKAGE', 'Pendiente de empaquetado'),
+(6, 'PENDIENTE_ENVIO', 'Pendiente de envío'),
+(7, 'ENVIADO', 'Enviado'),
+(8, 'PAID', 'Pagado');
 
 -- ==================================================================================
 -- INSERTAR CATEGORÍAS

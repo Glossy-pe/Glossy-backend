@@ -1,31 +1,25 @@
-    package com.example.entity;
+package com.example.entity;
 
-    import jakarta.persistence.*;
-    import lombok.AllArgsConstructor;
-    import lombok.Getter;
-    import lombok.NoArgsConstructor;
-    import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 
-    @Entity
-    @Getter
-    @Setter
-    @Table(name = "users")
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public class User extends SoftDeletable {
+@Getter
+@Setter
+@Table("users")
+@NoArgsConstructor
+@AllArgsConstructor
+public class User extends SoftDeletable {
 
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Long id;
+    @Id
+    private Long id;
 
-        @Column(nullable = false)
-        private String name;
+    private String name;
 
-        @Column(unique = true, nullable = false)
-        private String email;
+    private String email;
 
-        @Column(nullable = false)
-        private String passwordHash;
-    }
-
-
+    private String passwordHash;
+}

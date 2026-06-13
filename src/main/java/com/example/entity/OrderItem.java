@@ -1,47 +1,37 @@
 package com.example.entity;
 
-import java.math.BigDecimal;
-
-import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 
-@Entity
+import java.math.BigDecimal;
+
 @Getter
 @Setter
-@Table(name = "order_item")
+@Table("order_item")
 @NoArgsConstructor
-public class OrderItem {
+public class OrderItem extends Auditable{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "product_variant_id")
-    private ProductVariant productVariant;
+    private Long productVariantId;
 
-    @Column(nullable = false)
-    @Min(1)
+    private Long orderId;
+
     private int quantity;
 
-    @Column(nullable = false)
     private int paidQuantity = 0;
 
-    @Column(nullable = false)
     private int separatedQuantity = 0;
 
-    @Column(nullable = false)
     private int packedQuantity = 0;
 
-    @Column(nullable = true)
     private BigDecimal amountPaid;
 
-    @ManyToOne
-    @JoinColumn(name = "order_id")
-    private Order order;
+    private BigDecimal unitPrice;
 
     // --- helpers paid ---
 
@@ -60,8 +50,7 @@ public class OrderItem {
     }
 
     public BigDecimal getTotalPrice() {
-        return productVariant.getPrice()
-            .multiply(BigDecimal.valueOf(quantity));
+        return unitPrice.multiply(BigDecimal.valueOf(quantity));
     }
 
     // --- helpers separated ---

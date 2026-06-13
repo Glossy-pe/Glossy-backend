@@ -1,28 +1,27 @@
 spring:
-  datasource:
-    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+  r2dbc:
+    url: r2dbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
     username: ${DB_USER}
     password: ${DB_PASSWORD}
-    driver-class-name: org.postgresql.Driver
-  jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-    hibernate:
-      ddl-auto: update
-    show-sql: false
-    properties:
-      hibernate:
-        format_sql: true
-    defer-datasource-initialization: true
+
   sql:
     init:
       mode: never
 
+  webflux:
+    base-path: /api
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: alpha
+
 server:
   port: 8080
 
-meilisearch:
-  host: http://meilisearch:7700
-  # host: http://localhost:7700
-  api-key: ${MEILI_MASTER_KEY}
-  # api-key: "sk_live_tBqK88Ekw0lhpAyvN9TcFgqTj5G18PR8"
-  index: products
+  netty:
+    connection-timeout: 60s
+    idle-timeout: 60s

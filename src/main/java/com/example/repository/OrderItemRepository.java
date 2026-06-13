@@ -1,9 +1,13 @@
 package com.example.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import com.example.entity.OrderItem;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
-    boolean existsByProductVariantId(Long productVariantId);
+public interface OrderItemRepository extends ReactiveCrudRepository<OrderItem, Long> {
+    Flux<OrderItem> findByOrderId(Long orderId);
+    Mono<Void> deleteAllByOrderId(Long orderId);
+    Mono<OrderItem> findByOrderIdAndProductVariantId(Long orderId, Long productVariantId);
+
 }
