@@ -3,25 +3,26 @@ spring:
     url: r2dbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
     username: ${DB_USER}
     password: ${DB_PASSWORD}
-
   sql:
     init:
       mode: never
-
   webflux:
     base-path: /api
 
 springdoc:
   api-docs:
     path: /v3/api-docs
-
   swagger-ui:
     path: /swagger-ui.html
     operations-sorter: alpha
 
 server:
   port: 8080
-
   netty:
     connection-timeout: 60s
     idle-timeout: 60s
+
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME}
+  api-key: ${CLOUDINARY_API_KEY}
+  api-secret: ${CLOUDINARY_API_SECRET}

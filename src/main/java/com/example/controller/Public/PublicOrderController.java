@@ -18,12 +18,17 @@ public class PublicOrderController {
     private OrderRestFullService orderRestFullService;
 
 
-    @GetMapping("/full")
-    public Mono<PageResponse<OrderResponseFull>> getAllOrdersFull(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return orderRestFullService.getAllOrdersFull(PageRequest.of(page, size));
-    }
+//    @GetMapping("/full")
+//    public Mono<PageResponse<OrderResponseFull>> getAllOrdersFull(
+//            @RequestParam(required = false) String name,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size) {
+//
+//        return orderRestFullService.getAllOrdersFull(
+//                name,
+//                PageRequest.of(page, size)
+//        );
+//    }
 
 
     @GetMapping("/full/{id}")

@@ -23,12 +23,17 @@ public class AdminOrderController {
     @Autowired
     private OrderItemService orderItemService;
 
-    @GetMapping
-    public Mono<PageResponse<OrderResponse>> getAll(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return orderService.getAllOrders(PageRequest.of(page, size));
-    }
+//    @GetMapping
+//    public Mono<PageResponse<OrderResponse>> getAll(
+//            @RequestParam(required = false) String name,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size) {
+//
+//        return orderService.getAllOrders(
+//                name,
+//                PageRequest.of(page, size)
+//        );
+//    }
 
     @GetMapping("/{id}")
     public Mono<OrderResponse> getById(@PathVariable Long id) {

@@ -3,8 +3,7 @@ package com.example.dto.manager.response.variant;
 import java.math.BigDecimal;
 import java.util.List;
 
-import com.example.dto.manager.response.ManagerVariantImageResponse;
-
+import com.example.dto.manager.response.images.ManagerVariantImageResponse;
 import lombok.Getter;
 import lombok.Setter;
 

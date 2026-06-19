@@ -24,4 +24,6 @@ public class ProductVariantImage {
     private Boolean mainImage;
 
     private Long productVariantId;
+
+    private String resourceType;
 }

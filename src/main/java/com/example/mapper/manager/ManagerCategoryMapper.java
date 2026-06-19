@@ -1,6 +1,6 @@
 package com.example.mapper.manager;
 
-import com.example.dto.manager.response.ManagerCategoryResponse;
+import com.example.dto.manager.response.category.ManagerCategoryResponse;
 import com.example.entity.Category;
 import org.mapstruct.Mapper;
 

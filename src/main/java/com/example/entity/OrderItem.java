@@ -32,44 +32,4 @@ public class OrderItem extends Auditable{
     private BigDecimal amountPaid;
 
     private BigDecimal unitPrice;
-
-    // --- helpers paid ---
-
-    public int getPendingQuantity() {
-        return quantity - paidQuantity;
-    }
-
-    public Boolean isFullyPaid() {
-        if (amountPaid == null) return false;
-        return amountPaid.compareTo(getTotalPrice()) >= 0;
-    }
-
-    public BigDecimal getPendingAmount() {
-        if (amountPaid == null) return getTotalPrice();
-        return getTotalPrice().subtract(amountPaid);
-    }
-
-    public BigDecimal getTotalPrice() {
-        return unitPrice.multiply(BigDecimal.valueOf(quantity));
-    }
-
-    // --- helpers separated ---
-
-    public int getPendingSeparatedQuantity() {
-        return quantity - separatedQuantity;
-    }
-
-    public Boolean isFullySeparated() {
-        return separatedQuantity >= quantity;
-    }
-
-    // --- helpers packed ---
-
-    public int getPendingPackedQuantity() {
-        return quantity - packedQuantity;
-    }
-
-    public Boolean isFullyPacked() {
-        return packedQuantity >= quantity;
-    }
 }

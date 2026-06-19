@@ -1,8 +1,11 @@
 package com.example.controller.Manager;
 
 import com.example.dto.manager.request.variant.ManagerVariantRequest;
+import com.example.dto.manager.response.images.ManagerProductImageResponse;
+import com.example.dto.manager.response.images.ManagerVariantImageResponse;
 import com.example.dto.manager.response.variant.ManagerVariantResponse;
 import com.example.dto.manager.response.variant.ManagerVariantQueryProjectionResponse;
+import com.example.service.manager.images.ManagerVariantImageService;
 import com.example.service.manager.variant.ManagerVariantService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +20,9 @@ public class ManagerVariantController {
     @Autowired
     private ManagerVariantService managerVariantService;
 
+    @Autowired
+    private ManagerVariantImageService managerVariantImageService;
+
     @GetMapping
     public Flux<ManagerVariantResponse> getAll() {
         return managerVariantService.getAllVariants();
@@ -25,6 +31,11 @@ public class ManagerVariantController {
     @GetMapping("/{id}")
     public Mono<ManagerVariantResponse> getById(@PathVariable Long id) {
         return managerVariantService.getVariantById(id);
+    }
+
+    @GetMapping("/{id}/images")
+    public Flux<ManagerVariantImageResponse> getByVariantId(@PathVariable Long id) {
+        return managerVariantImageService.getByVariantId(id);
     }
 
     @GetMapping("/query-projection/{variantId}")

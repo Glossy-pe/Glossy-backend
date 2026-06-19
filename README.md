@@ -121,3 +121,10 @@ ALTER TABLE orders ADD COLUMN order_status_id BIGINT REFERENCES order_status(id)
 
 -- Si quieres un valor por defecto para órdenes existentes (PENDING = 1)
 UPDATE orders SET order_status_id = 1 WHERE order_status_id IS NULL;
+
+
+ALTER TABLE product_image
+ADD COLUMN resource_type VARCHAR(10) NOT NULL DEFAULT 'image';
+
+ALTER TABLE product_variant_image
+ADD COLUMN resource_type VARCHAR(10) NOT NULL DEFAULT 'image';

@@ -2,6 +2,8 @@ package com.example.service.order;
 
 import com.example.dto.admin.response.order.OrderResponseFull;
 import com.example.dto.admin.response.page.PageResponse;
+import com.example.dto.manager.response.order.ManagerOrderResponseFull;
+import com.example.dto.manager.response.page.ManagerPageResponse;
 import com.example.mapper.*;
 import com.example.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,28 +40,23 @@ public class OrderRestFullService {
     }
 
     // service
-    public Mono<PageResponse<OrderResponseFull>> getAllOrdersFull(Pageable pageable) {
-        return orderRepository.count()
-                .flatMap(total ->
-                        orderRepository.findAllBy(pageable)
-                                .flatMap(order ->
-                                                orderItemRepository.findByOrderId(order.getId())
-                                                        .map(orderItemMapper::toResponse)
-                                                        .collectList()
-                                                        .map(orderItems -> {
-                                                            OrderResponseFull response = orderMapper.toResponseFull(order);
-                                                            response.setItems(orderItems);
-                                                            return response;
-                                                        }),
-                                        5
-                                )
-                                .collectList()
-                                .map(orders -> PageResponse.of(
-                                        orders,
-                                        pageable.getPageNumber(),
-                                        pageable.getPageSize(),
-                                        total
-                                ))
-                );
-    }
+//    public Mono<PageResponse<OrderResponseFull>> getAllOrdersFull(String name, Pageable pageable) {
+//        String q = (name == null || name.isBlank()) ? null : name;
+//        return orderRepository.count(q)
+//                .flatMap(total ->
+//                        orderRepository.findAllBy(q, pageable.getPageSize(), (long) pageable.getPageNumber() * pageable.getPageSize())
+//                                .flatMap(order ->
+//                                        orderItemRepository.findByOrderId(order.getId())
+//                                                .map(orderItemMapper::toResponse)
+//                                                .collectList()
+//                                                .map(orderItems -> {
+//                                                    OrderResponseFull response = orderMapper.toResponseFull(order);
+//                                                    response.setItems(orderItems);
+//                                                    return response;
+//                                                }), 5
+//                                )
+//                                .collectList()
+//                                .map(orders -> PageResponse.of(orders, pageable.getPageNumber(), pageable.getPageSize(), total))
+//                );
+//    }
 }

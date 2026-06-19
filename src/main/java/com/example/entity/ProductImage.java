@@ -24,4 +24,6 @@ public class ProductImage extends Auditable {
     private Boolean mainImage;
 
     private Long productId;
+
+    private String resourceType;
 }

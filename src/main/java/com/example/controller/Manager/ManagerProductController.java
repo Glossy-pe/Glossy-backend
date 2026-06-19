@@ -1,6 +1,8 @@
 package com.example.controller.Manager;
 
+import com.example.dto.manager.response.images.ManagerProductImageResponse;
 import com.example.dto.manager.response.variant.ManagerVariantResponse;
+import com.example.service.manager.images.ManagerProductImageService;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -31,6 +33,9 @@ public class ManagerProductController {
     @Autowired
     private ManagerVariantService managerVariantService;
 
+    @Autowired
+    private ManagerProductImageService managerProductImageService;
+
     @GetMapping
     public Mono<PageResponse<ManagerProductResponseFull>> getAll(
             @RequestParam(defaultValue = "0") int page,
@@ -46,6 +51,11 @@ public class ManagerProductController {
     @GetMapping("/{id}/variants")
     public Flux<ManagerVariantResponse> getVariantsByProductId(@PathVariable Long id) {
         return managerVariantService.getVariantByProductId(id);
+    }
+
+    @GetMapping("/{id}/images")
+    public Flux<ManagerProductImageResponse> getByProductId(@PathVariable Long id) {
+        return managerProductImageService.getByProductId(id);
     }
 
     @PostMapping

@@ -35,20 +35,27 @@ public class ManagerOrderService {
     @Autowired
     private ManagerOrderMapper managerOrderMapper;
 
-    public Mono<PageResponse<ManagerOrderResponse>> getAllOrders(Pageable pageable) {
-        return orderRepository.count()
-                .flatMap(total ->
-                        orderRepository.findAllBy(pageable)
-                                .map(managerOrderMapper::toResponse)
-                                .collectList()
-                                .map(orders -> PageResponse.of(
-                                        orders,
-                                        pageable.getPageNumber(),
-                                        pageable.getPageSize(),
-                                        total
-                                ))
-                );
-    }
+//    public Mono<PageResponse<ManagerOrderResponse>> getAllOrders(
+//            String name,
+//            Pageable pageable
+//    ) {
+//        return orderRepository.count(name)
+//                .flatMap(total ->
+//                        orderRepository.findAllBy(
+//                                        name,
+//                                        pageable.getPageSize(),
+//                                        pageable.getOffset()
+//                                )
+//                                .map(managerOrderMapper::toResponse)
+//                                .collectList()
+//                                .map(orders -> PageResponse.of(
+//                                        orders,
+//                                        pageable.getPageNumber(),
+//                                        pageable.getPageSize(),
+//                                        total
+//                                ))
+//                );
+//    }
 
     public Mono<ManagerOrderResponse> getOrderById(Long id) {
         return orderRepository.findById(id)

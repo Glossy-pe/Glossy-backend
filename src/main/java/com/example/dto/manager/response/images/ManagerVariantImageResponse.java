@@ -1,12 +1,11 @@
-package com.example.dto.manager.response;
+package com.example.dto.manager.response.images;
 
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
 @Setter
+@Getter
 public class ManagerVariantImageResponse {
-    
     private Long id;
 
     private String url;
@@ -16,4 +15,6 @@ public class ManagerVariantImageResponse {
     private Boolean mainImage;
 
     private Long productVariantId;
+
+    private String resourceType;
 }

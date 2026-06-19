@@ -22,6 +22,7 @@ public class ManagerProductService {
     @Autowired
     private ManagerProductMapper productMapper;
 
+
     public Mono<PageResponse<ManagerProductResponse>> getAllProducts(Pageable pageable) {
         return productRepository.count()
                 .flatMap(total ->

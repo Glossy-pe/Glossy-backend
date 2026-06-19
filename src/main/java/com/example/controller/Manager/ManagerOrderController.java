@@ -29,11 +29,38 @@ public class ManagerOrderController {
     @Autowired
     private ManagerOrderItemService orderItemService;
 
-    @GetMapping
-    public Mono<PageResponse<ManagerOrderResponse>> getAll(
+//    @GetMapping
+//    public Mono<PageResponse<ManagerOrderResponse>> getAll(
+//            @RequestParam(required = false) String name,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size) {
+//
+//        return managerOrderService.getAllOrders(
+//                name,
+//                PageRequest.of(page, size)
+//        );
+//    }
+
+    @GetMapping("/full")
+    public Mono<PageResponse<ManagerOrderResponseFull>> getAllFull(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Long variantId,
+            @RequestParam(required = false) Long orderStatusId,    // 👈
+            @RequestParam(required = false) Boolean isPaid,
+            @RequestParam(required = false) Boolean isSeparated,
+            @RequestParam(required = false) Boolean isPacked,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return managerOrderService.getAllOrders(PageRequest.of(page, size));
+
+        return managerOrderRestFullService.getAllOrdersFull(
+                name,
+                variantId,
+                orderStatusId,   // 👈
+                isPaid,
+                isSeparated,
+                isPacked,
+                PageRequest.of(page, size)
+        );
     }
 
     @GetMapping("/{id}")
@@ -45,6 +72,8 @@ public class ManagerOrderController {
     public Mono<ManagerOrderResponseFull> getFullById(@PathVariable Long id) {
         return managerOrderRestFullService.getOrderByIdFull(id);
     }
+
+
 
     @GetMapping("/{id}/order-items")
     public Flux<ManagerOrderItemResponse> getVariantsByProductId(@PathVariable Long id) {
