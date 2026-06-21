@@ -14,23 +14,29 @@ public interface VariantRepository extends ReactiveCrudRepository<ProductVariant
 
 
         @Query("""
-            SELECT
-                p.id            AS product_id,
-                p.name          AS product_name,
-                pvi.url         AS image_url,
-                pvi.main_image  AS main_image,
-                pvi.position    AS image_position,
-                pv.id           AS variant_id,
-                pv.tone_name,
-                pv.tone_code,
-                pv.stock,
-                pv.price
-            FROM product p
-            INNER JOIN product_variant pv        ON p.id = pv.product_id
-            LEFT  JOIN product_variant_image pvi ON pvi.product_variant_id = pv.id
-                                                AND pvi.deleted = false
-            WHERE pv.id = :variantId
-            LIMIT 1
-            """)
+    SELECT
+        p.id            AS product_id,
+        p.name          AS product_name,
+        pi.url          AS image_url,
+        pi.main_image   AS main_image,
+        pi.position     AS image_position,
+        pv.id           AS variant_id,
+        pv.tone_name,
+        pv.tone_code,
+        pv.stock,
+        pv.price
+    FROM product p
+    INNER JOIN product_variant pv  ON p.id = pv.product_id
+    LEFT  JOIN LATERAL (
+        SELECT url, main_image, position
+        FROM product_image
+        WHERE product_id = p.id
+          AND (resource_type IS DISTINCT FROM 'video')
+        ORDER BY main_image DESC NULLS LAST, position ASC
+        LIMIT 1
+    ) pi ON true
+    WHERE pv.id = :variantId
+    LIMIT 1
+    """)
         Mono<ManagerVariantQueryProjectionResponse> findVariantDetailById(Long variantId);
 }
