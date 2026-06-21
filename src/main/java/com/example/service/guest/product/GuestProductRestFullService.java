@@ -62,12 +62,14 @@ public class GuestProductRestFullService {
 
     public Mono<PageResponse<GuestProductResponseFull>> getAllProductsFull(Pageable pageable, Long categoryId) {
         Mono<Long> totalMono = (categoryId != null)
-                ? productRepository.countByCategoryId(categoryId)
-                : productRepository.count();
+                ? productRepository.countVisibleForGuestByCategory(categoryId)
+                : productRepository.countVisibleForGuest();
 
         Flux<Product> productsFlux = (categoryId != null)
-                ? productRepository.findAllByCategoryId(categoryId, pageable)
-                : productRepository.findAllBy(pageable);
+                ? productRepository.findAllVisibleForGuestByCategory(
+                categoryId, pageable.getPageSize(), pageable.getOffset())
+                : productRepository.findAllVisibleForGuest(
+                pageable.getPageSize(), pageable.getOffset());
 
         return totalMono.flatMap((Long total) ->
                 productsFlux
@@ -96,8 +98,8 @@ public class GuestProductRestFullService {
         String normalizedQuery = query.trim();
 
         Flux<Product> productsFlux = (categoryId != null)
-                ? productRepository.findByNameContainingIgnoreCaseAndCategoryId(normalizedQuery, categoryId)
-                : productRepository.findByNameContainingIgnoreCase(normalizedQuery);
+                ? productRepository.findVisibleForGuestByNameContainingAndCategory(normalizedQuery, categoryId)
+                : productRepository.findVisibleForGuestByNameContaining(normalizedQuery);
 
         return productsFlux
                 .flatMap(product ->

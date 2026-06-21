@@ -17,6 +17,7 @@ public interface ManagerProductMapper {
     Product toEntity(ManagerProductRequest request);
 
     @Mapping(target = "variants", ignore = true)
+    @Mapping(target = "images", ignore = true)
     ManagerProductResponseFull toResponseFull(Product product);
 
     void updateEntity(ManagerProductRequest request, @MappingTarget Product product);

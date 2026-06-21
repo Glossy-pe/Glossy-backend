@@ -12,4 +12,6 @@ public class ManagerOrderStatusResponse {
     private String code;
 
     private String description;
+
+    private String hexColor;
 }

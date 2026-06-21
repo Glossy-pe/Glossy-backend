@@ -2,6 +2,7 @@ package com.example.dto.manager.response.product;
 
 import java.util.List;
 
+import com.example.dto.manager.response.images.ManagerProductImageResponse;
 import com.example.dto.manager.response.variant.ManagerVariantResponseFull;
 
 import lombok.Getter;
@@ -26,6 +27,7 @@ public class ManagerProductResponseFull {
     private Long categoryId;
 
 //    private String slug;
+    private List<ManagerProductImageResponse> images;
 
     private List<ManagerVariantResponseFull> variants;
 }

@@ -1,6 +1,5 @@
 package com.example.service.manager.order_status;
 
-import com.example.dto.manager.response.order_item.ManagerOrderItemResponse;
 import com.example.dto.manager.response.order_status.ManagerOrderStatusResponse;
 import com.example.mapper.manager.ManagerOrderStatusMapper;
 import com.example.repository.OrderStatusRepository;
