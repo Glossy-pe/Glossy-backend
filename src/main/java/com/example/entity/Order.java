@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -20,6 +21,8 @@ public class Order extends Auditable {
 
     private String customerAddress;
 
+    private String description;
+
     private String orderCode;
 
     private Long orderStatusId;
@@ -27,4 +30,8 @@ public class Order extends Auditable {
     private BigDecimal costTotal;
 
     private BigDecimal total;
+
+    private String publicToken;
+
+    private LocalDateTime expiresAt;
 }

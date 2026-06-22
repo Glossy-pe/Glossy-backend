@@ -128,3 +128,10 @@ ADD COLUMN resource_type VARCHAR(10) NOT NULL DEFAULT 'image';
 
 ALTER TABLE product_variant_image
 ADD COLUMN resource_type VARCHAR(10) NOT NULL DEFAULT 'image';
+
+ALTER TABLE orders
+ADD COLUMN description TEXT NULL;
+
+ALTER TABLE orders ADD COLUMN public_token VARCHAR(36) UNIQUE;
+ALTER TABLE orders ADD COLUMN expires_at TIMESTAMP;
+CREATE UNIQUE INDEX idx_orders_public_token ON orders(public_token);

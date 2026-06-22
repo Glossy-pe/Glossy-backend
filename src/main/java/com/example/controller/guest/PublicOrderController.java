@@ -1,36 +1,27 @@
 package com.example.controller.guest;
 
-import com.example.dto.admin.response.order.OrderResponseFull;
-import com.example.service.order.OrderRestFullService;
+import com.example.dto.guest.response.order.GuestOrderResponseFull;
+import com.example.service.guest.order.GuestOrderRestFullService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/public/orders")
+@RequestMapping("/guest/orders")
 @RequiredArgsConstructor
 public class PublicOrderController {
 
     @Autowired
-    private OrderRestFullService orderRestFullService;
-
-
-//    @GetMapping("/full")
-//    public Mono<PageResponse<OrderResponseFull>> getAllOrdersFull(
-//            @RequestParam(required = false) String name,
-//            @RequestParam(defaultValue = "0") int page,
-//            @RequestParam(defaultValue = "10") int size) {
-//
-//        return orderRestFullService.getAllOrdersFull(
-//                name,
-//                PageRequest.of(page, size)
-//        );
-//    }
-
+    private GuestOrderRestFullService orderRestFullService;
 
     @GetMapping("/full/{id}")
-    public Mono<OrderResponseFull> getOrderByIdFull(@PathVariable Long id) {
+    public Mono<GuestOrderResponseFull> getOrderByIdFull(@PathVariable Long id) {
         return orderRestFullService.getOrderByIdFull(id);
+    }
+
+    @GetMapping("/by-token/{token}")
+    public Mono<GuestOrderResponseFull> getOrderByToken(@PathVariable String token) {
+        return orderRestFullService.getOrderByToken(token);
     }
 }

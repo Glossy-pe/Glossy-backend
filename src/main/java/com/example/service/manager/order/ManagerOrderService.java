@@ -65,6 +65,7 @@ public class ManagerOrderService {
     public Mono<ManagerOrderResponse> create(ManagerOrderRequest request) {
         Order entity = managerOrderMapper.toEntity(request);
         entity.setOrderCode(generateOrderCode());
+        entity.setPublicToken(UUID.randomUUID().toString());
 
         return orderRepository.save(entity)
                 .map(managerOrderMapper::toResponse);

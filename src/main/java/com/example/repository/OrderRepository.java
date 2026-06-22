@@ -69,4 +69,6 @@ public interface OrderRepository extends ReactiveCrudRepository<Order, Long> {
             @Param("isSeparated") Boolean isSeparated,
             @Param("isPacked") Boolean isPacked
     );
+
+    Mono<Order> findByPublicToken(String publicToken);
 }

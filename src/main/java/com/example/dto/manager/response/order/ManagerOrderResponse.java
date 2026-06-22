@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Setter
 @Getter
@@ -15,6 +16,8 @@ public class ManagerOrderResponse extends AuditableResponse {
 
     private String customerAddress;
 
+    private String description;
+
     private String orderCode;
 
     private Long orderStatusId;
@@ -22,4 +25,8 @@ public class ManagerOrderResponse extends AuditableResponse {
     private BigDecimal costTotal;
 
     private BigDecimal total;
+
+    private String publicToken;
+
+    private LocalDateTime expiresAt;
 }
