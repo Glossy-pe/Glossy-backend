@@ -91,6 +91,19 @@ public class GuestProductRestFullService {
         );
     }
 
+    public Mono<GuestProductResponseFull> getById(Long productId) {
+        return productRepository.findById(productId)
+                .flatMap(product ->
+                        resolveImages(product.getId())
+                                .map(images -> {
+                                    GuestProductResponseFull response = productMapper.toResponseFull(product);
+                                    response.setImages(images);
+                                    response.setVariants(null); // no necesario en orden
+                                    return response;
+                                })
+                );
+    }
+
     public Flux<GuestProductResponseFull> searchProductsFull(String query, Long categoryId) {
         if (query == null || query.trim().isEmpty()) {
             return Flux.empty();

@@ -1,5 +1,6 @@
 package com.example.dto.guest.response.order_item;
 
+import com.example.dto.guest.response.product.GuestProductResponseFull;
 import com.example.dto.guest.response.variant.GuestVariantResponseFull;
 import com.example.dto.manager.response.variant.ManagerVariantQueryProjectionResponse;
 import lombok.Getter;
@@ -26,6 +27,8 @@ public class GuestOrderItemResponseFull {
     private BigDecimal amountPaid;
 
     private BigDecimal unitPrice;
+
+    private GuestProductResponseFull product;
 
     private GuestVariantResponseFull variant;
 }

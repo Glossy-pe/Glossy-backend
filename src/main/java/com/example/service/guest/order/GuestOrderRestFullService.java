@@ -15,6 +15,7 @@ import com.example.mapper.manager.ManagerOrderStatusMapper;
 import com.example.repository.OrderItemRepository;
 import com.example.repository.OrderRepository;
 import com.example.repository.OrderStatusRepository;
+import com.example.service.guest.product.GuestProductRestFullService;
 import com.example.service.guest.variant.GuestVariantRestFullService;
 import com.example.service.manager.variant.ManagerVariantRestFullService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,9 @@ public class GuestOrderRestFullService {
     @Autowired
     private GuestVariantRestFullService managerVariantRestFullService;
 
+    @Autowired
+    private GuestProductRestFullService guestProductRestFullService;
+
     public Mono<GuestOrderResponseFull> getOrderByIdFull(Long id) {
         return orderRepository.findById(id)
                 .switchIfEmpty(Mono.error(new ResourceNotFoundException("Order not found with id: " + id)))
@@ -52,7 +56,13 @@ public class GuestOrderRestFullService {
                                 .flatMap(item -> {
                                     GuestOrderItemResponseFull itemFull = managerOrderItemMapper.toResponseFull(item);
                                     return managerVariantRestFullService.getById(item.getProductVariantId())
-                                            .doOnNext(itemFull::setVariant)
+                                            .flatMap(variant -> {
+                                                itemFull.setVariant(variant);
+                                                return guestProductRestFullService.getById(variant.getProductId())
+                                                        .doOnNext(itemFull::setProduct)
+                                                        .onErrorResume(e -> Mono.empty())
+                                                        .thenReturn(itemFull);
+                                            })
                                             .onErrorResume(e -> Mono.empty())
                                             .thenReturn(itemFull);
                                 })
