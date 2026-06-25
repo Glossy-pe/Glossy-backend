@@ -91,4 +91,120 @@ public interface ProductRepository extends ReactiveCrudRepository<Product, Long>
         )
         """)
     Flux<Product> findVisibleForGuestByNameContainingAndCategory(String name, Long categoryId);
+
+    // ── Ordenamiento por fecha ──────────────────────────────────────────
+
+    @Query("""
+    SELECT p.* FROM product p
+    WHERE p.active = true
+    AND EXISTS (
+        SELECT 1 FROM product_variant pv
+        WHERE pv.product_id = p.id AND pv.stock > 0 AND pv.deleted = false
+    )
+    ORDER BY p.created_at DESC
+    LIMIT :limit OFFSET :offset
+    """)
+    Flux<Product> findAllVisibleForGuestOrderByNewest(int limit, long offset);
+
+    @Query("""
+    SELECT p.* FROM product p
+    WHERE p.active = true
+    AND EXISTS (
+        SELECT 1 FROM product_variant pv
+        WHERE pv.product_id = p.id AND pv.stock > 0 AND pv.deleted = false
+    )
+    ORDER BY p.created_at ASC
+    LIMIT :limit OFFSET :offset
+    """)
+    Flux<Product> findAllVisibleForGuestOrderByOldest(int limit, long offset);
+
+    @Query("""
+    SELECT p.* FROM product p
+    WHERE p.active = true
+    AND p.category_id = :categoryId
+    AND EXISTS (
+        SELECT 1 FROM product_variant pv
+        WHERE pv.product_id = p.id AND pv.stock > 0 AND pv.deleted = false
+    )
+    ORDER BY p.created_at DESC
+    LIMIT :limit OFFSET :offset
+    """)
+    Flux<Product> findAllVisibleForGuestByCategoryOrderByNewest(Long categoryId, int limit, long offset);
+
+    @Query("""
+    SELECT p.* FROM product p
+    WHERE p.active = true
+    AND p.category_id = :categoryId
+    AND EXISTS (
+        SELECT 1 FROM product_variant pv
+        WHERE pv.product_id = p.id AND pv.stock > 0 AND pv.deleted = false
+    )
+    ORDER BY p.created_at ASC
+    LIMIT :limit OFFSET :offset
+    """)
+    Flux<Product> findAllVisibleForGuestByCategoryOrderByOldest(Long categoryId, int limit, long offset);
+
+// ── Ordenamiento por precio (variante más barata / más cara) ────────
+
+    @Query("""
+    SELECT p.* FROM product p
+    WHERE p.active = true
+    AND EXISTS (
+        SELECT 1 FROM product_variant pv
+        WHERE pv.product_id = p.id AND pv.stock > 0 AND pv.deleted = false
+    )
+    ORDER BY (
+        SELECT MIN(pv.price) FROM product_variant pv
+        WHERE pv.product_id = p.id AND pv.stock > 0 AND pv.deleted = false
+    ) ASC
+    LIMIT :limit OFFSET :offset
+    """)
+    Flux<Product> findAllVisibleForGuestOrderByPriceAsc(int limit, long offset);
+
+    @Query("""
+    SELECT p.* FROM product p
+    WHERE p.active = true
+    AND EXISTS (
+        SELECT 1 FROM product_variant pv
+        WHERE pv.product_id = p.id AND pv.stock > 0 AND pv.deleted = false
+    )
+    ORDER BY (
+        SELECT MAX(pv.price) FROM product_variant pv
+        WHERE pv.product_id = p.id AND pv.stock > 0 AND pv.deleted = false
+    ) DESC
+    LIMIT :limit OFFSET :offset
+    """)
+    Flux<Product> findAllVisibleForGuestOrderByPriceDesc(int limit, long offset);
+
+    @Query("""
+    SELECT p.* FROM product p
+    WHERE p.active = true
+    AND p.category_id = :categoryId
+    AND EXISTS (
+        SELECT 1 FROM product_variant pv
+        WHERE pv.product_id = p.id AND pv.stock > 0 AND pv.deleted = false
+    )
+    ORDER BY (
+        SELECT MIN(pv.price) FROM product_variant pv
+        WHERE pv.product_id = p.id AND pv.stock > 0 AND pv.deleted = false
+    ) ASC
+    LIMIT :limit OFFSET :offset
+    """)
+    Flux<Product> findAllVisibleForGuestByCategoryOrderByPriceAsc(Long categoryId, int limit, long offset);
+
+    @Query("""
+    SELECT p.* FROM product p
+    WHERE p.active = true
+    AND p.category_id = :categoryId
+    AND EXISTS (
+        SELECT 1 FROM product_variant pv
+        WHERE pv.product_id = p.id AND pv.stock > 0 AND pv.deleted = false
+    )
+    ORDER BY (
+        SELECT MAX(pv.price) FROM product_variant pv
+        WHERE pv.product_id = p.id AND pv.stock > 0 AND pv.deleted = false
+    ) DESC
+    LIMIT :limit OFFSET :offset
+    """)
+    Flux<Product> findAllVisibleForGuestByCategoryOrderByPriceDesc(Long categoryId, int limit, long offset);
 }
