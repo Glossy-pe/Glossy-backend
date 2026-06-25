@@ -1,6 +1,6 @@
 git tag --sort=-creatordate | head -n 1
 
-
+git add . && git commit -m "Mi commit" && git push
 -- cart
 ALTER TABLE cart
     ADD COLUMN IF NOT EXISTS created_at TIMESTAMP,
