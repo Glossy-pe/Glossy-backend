@@ -26,9 +26,10 @@ public class GuestProductController {
     public Mono<PageResponse<GuestProductResponseFull>> getAllProductsFull(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) Long categoryId) {
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String sort) {
         return guestProductRestFullService.getAllProductsFull(
-                PageRequest.of(page, size), categoryId);
+                PageRequest.of(page, size), categoryId, sort);
     }
 
     @GetMapping("/{id}")

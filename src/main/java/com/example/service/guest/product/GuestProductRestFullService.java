@@ -60,18 +60,19 @@ public class GuestProductRestFullService {
                 );
     }
 
-    public Mono<PageResponse<GuestProductResponseFull>> getAllProductsFull(Pageable pageable, Long categoryId) {
+    public Mono<PageResponse<GuestProductResponseFull>> getAllProductsFull(
+            Pageable pageable, Long categoryId, String sort) {
+
         Mono<Long> totalMono = (categoryId != null)
                 ? productRepository.countVisibleForGuestByCategory(categoryId)
                 : productRepository.countVisibleForGuest();
 
-        Flux<Product> productsFlux = (categoryId != null)
-                ? productRepository.findAllVisibleForGuestByCategory(
-                categoryId, pageable.getPageSize(), pageable.getOffset())
-                : productRepository.findAllVisibleForGuest(
-                pageable.getPageSize(), pageable.getOffset());
+        int limit = pageable.getPageSize();
+        long offset = pageable.getOffset();
 
-        return totalMono.flatMap((Long total) ->
+        Flux<Product> productsFlux = resolveProductsFlux(categoryId, sort, limit, offset);
+
+        return totalMono.flatMap(total ->
                 productsFlux
                         .flatMap(product ->
                                 Mono.zip(
@@ -85,10 +86,28 @@ public class GuestProductRestFullService {
                                 })
                         )
                         .collectList()
-                        .map((List<GuestProductResponseFull> products) ->
-                                PageResponse.of(products, pageable.getPageNumber(), pageable.getPageSize(), total)
-                        )
+                        .map(products -> PageResponse.of(products, pageable.getPageNumber(), pageable.getPageSize(), total))
         );
+    }
+
+    private Flux<Product> resolveProductsFlux(Long categoryId, String sort, int limit, long offset) {
+        if (categoryId != null) {
+            return switch (sort != null ? sort : "") {
+                case "newest"     -> productRepository.findAllVisibleForGuestByCategoryOrderByNewest(categoryId, limit, offset);
+                case "oldest"     -> productRepository.findAllVisibleForGuestByCategoryOrderByOldest(categoryId, limit, offset);
+                case "price_asc"  -> productRepository.findAllVisibleForGuestByCategoryOrderByPriceAsc(categoryId, limit, offset);
+                case "price_desc" -> productRepository.findAllVisibleForGuestByCategoryOrderByPriceDesc(categoryId, limit, offset);
+                default           -> productRepository.findAllVisibleForGuestByCategory(categoryId, limit, offset);
+            };
+        } else {
+            return switch (sort != null ? sort : "") {
+                case "newest"     -> productRepository.findAllVisibleForGuestOrderByNewest(limit, offset);
+                case "oldest"     -> productRepository.findAllVisibleForGuestOrderByOldest(limit, offset);
+                case "price_asc"  -> productRepository.findAllVisibleForGuestOrderByPriceAsc(limit, offset);
+                case "price_desc" -> productRepository.findAllVisibleForGuestOrderByPriceDesc(limit, offset);
+                default           -> productRepository.findAllVisibleForGuest(limit, offset);
+            };
+        }
     }
 
     public Mono<GuestProductResponseFull> getById(Long productId) {
