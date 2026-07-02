@@ -94,7 +94,7 @@ public class ManagerOrderRestFullService {
                                         pageable.getPageSize(),
                                         pageable.getOffset()
                                 )
-                                .flatMap(order ->
+                                .flatMapSequential(order ->
                                         orderItemRepository.findByOrderId(order.getId())
                                                 .flatMap(item -> {
                                                     ManagerOrderItemResponseFull itemFull =

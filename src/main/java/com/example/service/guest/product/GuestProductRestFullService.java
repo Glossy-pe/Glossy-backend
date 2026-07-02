@@ -74,7 +74,7 @@ public class GuestProductRestFullService {
 
         return totalMono.flatMap(total ->
                 productsFlux
-                        .flatMap(product ->
+                        .flatMapSequential(product ->
                                 Mono.zip(
                                         resolveImages(product.getId()),
                                         resolveVariants(product.getId())

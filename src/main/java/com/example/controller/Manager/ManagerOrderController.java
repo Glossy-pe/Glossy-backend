@@ -5,6 +5,7 @@ import com.example.dto.manager.request.order.ManagerOrderRequest;
 import com.example.dto.manager.response.order.ManagerOrderResponse;
 import com.example.dto.manager.response.order.ManagerOrderResponseFull;
 import com.example.dto.manager.response.order_item.ManagerOrderItemResponse;
+import com.example.dto.manager.response.page.ManagerPageResponse;
 import com.example.service.manager.order.ManagerOrderRestFullService;
 import com.example.service.manager.order.ManagerOrderService;
 import com.example.service.manager.order_item.ManagerOrderItemService;
@@ -76,8 +77,11 @@ public class ManagerOrderController {
 
 
     @GetMapping("/{id}/order-items")
-    public Flux<ManagerOrderItemResponse> getVariantsByProductId(@PathVariable Long id) {
-        return orderItemService.getVariantByOrderId(id);
+    public Mono<ManagerPageResponse<ManagerOrderItemResponse>> getVariantsByProductId(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return orderItemService.getVariantByOrderId(id, PageRequest.of(page, size));
     }
 
     @PostMapping

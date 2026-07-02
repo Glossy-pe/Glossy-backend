@@ -66,7 +66,7 @@ public class ManagerProductRestFullService {
         return productRepository.count()
                 .flatMap((Long total) ->
                         productRepository.findAllBy(pageable)
-                                .flatMap(product ->
+                                .flatMapSequential(product ->
                                         Mono.zip(
                                                 resolveImages(product.getId()),
                                                 resolveVariants(product.getId())
@@ -96,7 +96,7 @@ public class ManagerProductRestFullService {
         String normalizedQuery = query.trim();
 
         return productRepository.findByNameContainingIgnoreCase(normalizedQuery)
-                .flatMap(product ->
+                .flatMapSequential(product ->
                         Mono.zip(
                                 resolveImages(product.getId()),
                                 resolveVariants(product.getId())

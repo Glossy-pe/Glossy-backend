@@ -4,10 +4,13 @@ import com.example.dto.admin.request.order_item.OrderItemRequest;
 import com.example.dto.admin.response.order_item.OrderItemResponse;
 import com.example.dto.manager.request.order_item.ManagerOrderItemRequest;
 import com.example.dto.manager.response.order_item.ManagerOrderItemResponse;
+import com.example.dto.manager.response.order_item.ManagerOrderItemResponseFull;
+import com.example.dto.manager.response.page.ManagerPageResponse;
 import com.example.service.manager.order_item.ManagerOrderItemService;
 import com.example.service.order_item.OrderItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -22,6 +25,13 @@ public class ManagerOrderItemController {
     @GetMapping
     public Flux<ManagerOrderItemResponse> getAll() {
         return managerOrderItemService.getAll();
+    }
+
+    @GetMapping("/full")
+    public Mono<ManagerPageResponse<ManagerOrderItemResponseFull>> getAllFull(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return managerOrderItemService.getAllFull(PageRequest.of(page, size));
     }
 
     @GetMapping("/{id}")

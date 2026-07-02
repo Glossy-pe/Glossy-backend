@@ -101,7 +101,7 @@ public interface ProductRepository extends ReactiveCrudRepository<Product, Long>
         SELECT 1 FROM product_variant pv
         WHERE pv.product_id = p.id AND pv.stock > 0 AND pv.deleted = false
     )
-    ORDER BY p.created_at DESC
+    ORDER BY p.created_at DESC, p.id DESC
     LIMIT :limit OFFSET :offset
     """)
     Flux<Product> findAllVisibleForGuestOrderByNewest(int limit, long offset);
@@ -113,7 +113,7 @@ public interface ProductRepository extends ReactiveCrudRepository<Product, Long>
         SELECT 1 FROM product_variant pv
         WHERE pv.product_id = p.id AND pv.stock > 0 AND pv.deleted = false
     )
-    ORDER BY p.created_at ASC
+    ORDER BY p.created_at ASC, p.id ASC
     LIMIT :limit OFFSET :offset
     """)
     Flux<Product> findAllVisibleForGuestOrderByOldest(int limit, long offset);
@@ -126,7 +126,7 @@ public interface ProductRepository extends ReactiveCrudRepository<Product, Long>
         SELECT 1 FROM product_variant pv
         WHERE pv.product_id = p.id AND pv.stock > 0 AND pv.deleted = false
     )
-    ORDER BY p.created_at DESC
+    ORDER BY p.created_at DESC, p.id DESC
     LIMIT :limit OFFSET :offset
     """)
     Flux<Product> findAllVisibleForGuestByCategoryOrderByNewest(Long categoryId, int limit, long offset);
@@ -139,7 +139,7 @@ public interface ProductRepository extends ReactiveCrudRepository<Product, Long>
         SELECT 1 FROM product_variant pv
         WHERE pv.product_id = p.id AND pv.stock > 0 AND pv.deleted = false
     )
-    ORDER BY p.created_at ASC
+    ORDER BY p.created_at ASC, p.id ASC
     LIMIT :limit OFFSET :offset
     """)
     Flux<Product> findAllVisibleForGuestByCategoryOrderByOldest(Long categoryId, int limit, long offset);
@@ -156,7 +156,7 @@ public interface ProductRepository extends ReactiveCrudRepository<Product, Long>
     ORDER BY (
         SELECT MIN(pv.price) FROM product_variant pv
         WHERE pv.product_id = p.id AND pv.stock > 0 AND pv.deleted = false
-    ) ASC
+    ) ASC, p.id ASC
     LIMIT :limit OFFSET :offset
     """)
     Flux<Product> findAllVisibleForGuestOrderByPriceAsc(int limit, long offset);
@@ -171,7 +171,7 @@ public interface ProductRepository extends ReactiveCrudRepository<Product, Long>
     ORDER BY (
         SELECT MAX(pv.price) FROM product_variant pv
         WHERE pv.product_id = p.id AND pv.stock > 0 AND pv.deleted = false
-    ) DESC
+    ) DESC, p.id ASC
     LIMIT :limit OFFSET :offset
     """)
     Flux<Product> findAllVisibleForGuestOrderByPriceDesc(int limit, long offset);
@@ -187,7 +187,7 @@ public interface ProductRepository extends ReactiveCrudRepository<Product, Long>
     ORDER BY (
         SELECT MIN(pv.price) FROM product_variant pv
         WHERE pv.product_id = p.id AND pv.stock > 0 AND pv.deleted = false
-    ) ASC
+    ) ASC, p.id ASC
     LIMIT :limit OFFSET :offset
     """)
     Flux<Product> findAllVisibleForGuestByCategoryOrderByPriceAsc(Long categoryId, int limit, long offset);
@@ -203,7 +203,7 @@ public interface ProductRepository extends ReactiveCrudRepository<Product, Long>
     ORDER BY (
         SELECT MAX(pv.price) FROM product_variant pv
         WHERE pv.product_id = p.id AND pv.stock > 0 AND pv.deleted = false
-    ) DESC
+    ) DESC, p.id ASC
     LIMIT :limit OFFSET :offset
     """)
     Flux<Product> findAllVisibleForGuestByCategoryOrderByPriceDesc(Long categoryId, int limit, long offset);
