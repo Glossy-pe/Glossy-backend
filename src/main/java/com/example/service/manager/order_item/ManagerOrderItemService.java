@@ -68,20 +68,14 @@ public class ManagerOrderItemService {
 
     @Transactional
     public Mono<ManagerOrderItemResponse> create(ManagerOrderItemRequest request) {
-        return orderItemRepository.findByOrderIdAndProductVariantId(request.getOrderId(), request.getProductVariantId())
-                .flatMap(existing -> Mono.<ManagerOrderItemResponse>error(
-                        new DuplicateOrderItemException(request.getProductVariantId())
-                ))
-                .switchIfEmpty(
-                        managerVariantService.deductStock(request.getProductVariantId(), request.getQuantity())
-                                .then(variantRepository.findById(request.getProductVariantId()))
-                                .flatMap(variant -> {
-                                    OrderItem entity = managerOrderItemMapper.toEntity(request);
-                                    entity.setUnitPrice(variant.getPrice());
-                                    return orderItemRepository.save(entity);
-                                })
-                                .map(managerOrderItemMapper::toResponse)
-                );
+        return managerVariantService.deductStock(request.getProductVariantId(), request.getQuantity())
+                .then(variantRepository.findById(request.getProductVariantId()))
+                .flatMap(variant -> {
+                    OrderItem entity = managerOrderItemMapper.toEntity(request);
+                    entity.setUnitPrice(variant.getPrice());
+                    return orderItemRepository.save(entity);
+                })
+                .map(managerOrderItemMapper::toResponse);
     }
 
     @Transactional
