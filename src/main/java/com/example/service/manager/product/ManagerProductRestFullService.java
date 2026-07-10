@@ -95,7 +95,7 @@ public class ManagerProductRestFullService {
         }
         String normalizedQuery = query.trim();
 
-        return productRepository.findByNameContainingIgnoreCase(normalizedQuery)
+        return productRepository.findTop5ByNameContainingIgnoreCase(normalizedQuery)
                 .flatMapSequential(product ->
                         Mono.zip(
                                 resolveImages(product.getId()),

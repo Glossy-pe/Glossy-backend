@@ -16,7 +16,7 @@ public interface ProductRepository extends ReactiveCrudRepository<Product, Long>
     // ── Manager: ve todo ──────────────────────────────
     Flux<Product> findAllBy(Pageable pageable);
     Flux<Product> findAllByIdIn(List<Long> ids);
-    Flux<Product> findByNameContainingIgnoreCase(String name);
+    Flux<Product> findTop5ByNameContainingIgnoreCase(String name);
     Flux<Product> findAllByCategoryId(Long categoryId, Pageable pageable);
     Mono<Long> countByCategoryId(Long categoryId);
     Flux<Product> findByNameContainingIgnoreCaseAndCategoryId(String name, Long categoryId);
