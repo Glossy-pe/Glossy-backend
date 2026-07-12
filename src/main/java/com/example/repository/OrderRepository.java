@@ -20,14 +20,23 @@ public interface OrderRepository extends ReactiveCrudRepository<Order, Long> {
         ))
         AND (:orderStatusId IS NULL OR o.order_status_id = :orderStatusId)
         AND (:isPaid IS NULL OR (
-            SELECT COUNT(*) FILTER (WHERE oi.paid_quantity < oi.quantity) FROM order_item oi WHERE oi.order_id = o.id
-        ) = 0)
+            CASE WHEN :isPaid = true
+                 THEN (SELECT COUNT(*) FILTER (WHERE COALESCE(oi.amount_paid, 0) < oi.quantity * oi.unit_price) FROM order_item oi WHERE oi.order_id = o.id) = 0
+                 ELSE (SELECT COUNT(*) FILTER (WHERE COALESCE(oi.amount_paid, 0) < oi.quantity * oi.unit_price) FROM order_item oi WHERE oi.order_id = o.id) > 0
+            END
+        ))
         AND (:isSeparated IS NULL OR (
-            SELECT COUNT(*) FILTER (WHERE oi.separated_quantity < oi.quantity) FROM order_item oi WHERE oi.order_id = o.id
-        ) = 0)
+            CASE WHEN :isSeparated = true
+                 THEN (SELECT COUNT(*) FILTER (WHERE oi.separated_quantity < oi.quantity) FROM order_item oi WHERE oi.order_id = o.id) = 0
+                 ELSE (SELECT COUNT(*) FILTER (WHERE oi.separated_quantity < oi.quantity) FROM order_item oi WHERE oi.order_id = o.id) > 0
+            END
+        ))
         AND (:isPacked IS NULL OR (
-            SELECT COUNT(*) FILTER (WHERE oi.packed_quantity < oi.quantity) FROM order_item oi WHERE oi.order_id = o.id
-        ) = 0)
+            CASE WHEN :isPacked = true
+                 THEN (SELECT COUNT(*) FILTER (WHERE oi.packed_quantity < oi.quantity) FROM order_item oi WHERE oi.order_id = o.id) = 0
+                 ELSE (SELECT COUNT(*) FILTER (WHERE oi.packed_quantity < oi.quantity) FROM order_item oi WHERE oi.order_id = o.id) > 0
+            END
+        ))
         ORDER BY o.id DESC
         LIMIT :size OFFSET :offset
     """)
@@ -52,14 +61,23 @@ public interface OrderRepository extends ReactiveCrudRepository<Order, Long> {
         ))
         AND (:orderStatusId IS NULL OR o.order_status_id = :orderStatusId)
         AND (:isPaid IS NULL OR (
-            SELECT COUNT(*) FILTER (WHERE oi.paid_quantity < oi.quantity) FROM order_item oi WHERE oi.order_id = o.id
-        ) = 0)
+            CASE WHEN :isPaid = true
+                 THEN (SELECT COUNT(*) FILTER (WHERE COALESCE(oi.amount_paid, 0) < oi.quantity * oi.unit_price) FROM order_item oi WHERE oi.order_id = o.id) = 0
+                 ELSE (SELECT COUNT(*) FILTER (WHERE COALESCE(oi.amount_paid, 0) < oi.quantity * oi.unit_price) FROM order_item oi WHERE oi.order_id = o.id) > 0
+            END
+        ))
         AND (:isSeparated IS NULL OR (
-            SELECT COUNT(*) FILTER (WHERE oi.separated_quantity < oi.quantity) FROM order_item oi WHERE oi.order_id = o.id
-        ) = 0)
+            CASE WHEN :isSeparated = true
+                 THEN (SELECT COUNT(*) FILTER (WHERE oi.separated_quantity < oi.quantity) FROM order_item oi WHERE oi.order_id = o.id) = 0
+                 ELSE (SELECT COUNT(*) FILTER (WHERE oi.separated_quantity < oi.quantity) FROM order_item oi WHERE oi.order_id = o.id) > 0
+            END
+        ))
         AND (:isPacked IS NULL OR (
-            SELECT COUNT(*) FILTER (WHERE oi.packed_quantity < oi.quantity) FROM order_item oi WHERE oi.order_id = o.id
-        ) = 0)
+            CASE WHEN :isPacked = true
+                 THEN (SELECT COUNT(*) FILTER (WHERE oi.packed_quantity < oi.quantity) FROM order_item oi WHERE oi.order_id = o.id) = 0
+                 ELSE (SELECT COUNT(*) FILTER (WHERE oi.packed_quantity < oi.quantity) FROM order_item oi WHERE oi.order_id = o.id) > 0
+            END
+        ))
     """)
     Mono<Long> count(
             @Param("name") String name,

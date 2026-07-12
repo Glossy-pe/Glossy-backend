@@ -39,8 +39,11 @@ public class ManagerProductController {
     @GetMapping
     public Mono<PageResponse<ManagerProductResponseFull>> getAll(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return managerProductRestFullService.getAllProductsFull(PageRequest.of(page, size));
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String sort) {
+        return managerProductRestFullService.getAllProductsFull(
+                PageRequest.of(page, size), categoryId, sort);
     }
 
     @GetMapping("/{id}")

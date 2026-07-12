@@ -207,4 +207,80 @@ public interface ProductRepository extends ReactiveCrudRepository<Product, Long>
     LIMIT :limit OFFSET :offset
     """)
     Flux<Product> findAllVisibleForGuestByCategoryOrderByPriceDesc(Long categoryId, int limit, long offset);
+
+    // ── Manager: ordenamiento por fecha ──────────────────────────────
+
+    @Query("""
+        SELECT p.* FROM product p
+        ORDER BY p.created_at DESC, p.id DESC
+        LIMIT :limit OFFSET :offset
+        """)
+    Flux<Product> findAllOrderByNewest(int limit, long offset);
+
+    @Query("""
+        SELECT p.* FROM product p
+        ORDER BY p.created_at ASC, p.id ASC
+        LIMIT :limit OFFSET :offset
+        """)
+    Flux<Product> findAllOrderByOldest(int limit, long offset);
+
+    @Query("""
+        SELECT p.* FROM product p
+        WHERE p.category_id = :categoryId
+        ORDER BY p.created_at DESC, p.id DESC
+        LIMIT :limit OFFSET :offset
+        """)
+    Flux<Product> findAllByCategoryOrderByNewest(Long categoryId, int limit, long offset);
+
+    @Query("""
+        SELECT p.* FROM product p
+        WHERE p.category_id = :categoryId
+        ORDER BY p.created_at ASC, p.id ASC
+        LIMIT :limit OFFSET :offset
+        """)
+    Flux<Product> findAllByCategoryOrderByOldest(Long categoryId, int limit, long offset);
+
+    // ── Manager: ordenamiento por precio (variante más barata/cara) ──
+
+    @Query("""
+        SELECT p.* FROM product p
+        ORDER BY (
+            SELECT MIN(pv.price) FROM product_variant pv
+            WHERE pv.product_id = p.id AND pv.deleted = false
+        ) ASC, p.id ASC
+        LIMIT :limit OFFSET :offset
+        """)
+    Flux<Product> findAllOrderByPriceAsc(int limit, long offset);
+
+    @Query("""
+        SELECT p.* FROM product p
+        ORDER BY (
+            SELECT MAX(pv.price) FROM product_variant pv
+            WHERE pv.product_id = p.id AND pv.deleted = false
+        ) DESC, p.id ASC
+        LIMIT :limit OFFSET :offset
+        """)
+    Flux<Product> findAllOrderByPriceDesc(int limit, long offset);
+
+    @Query("""
+        SELECT p.* FROM product p
+        WHERE p.category_id = :categoryId
+        ORDER BY (
+            SELECT MIN(pv.price) FROM product_variant pv
+            WHERE pv.product_id = p.id AND pv.deleted = false
+        ) ASC, p.id ASC
+        LIMIT :limit OFFSET :offset
+        """)
+    Flux<Product> findAllByCategoryOrderByPriceAsc(Long categoryId, int limit, long offset);
+
+    @Query("""
+        SELECT p.* FROM product p
+        WHERE p.category_id = :categoryId
+        ORDER BY (
+            SELECT MAX(pv.price) FROM product_variant pv
+            WHERE pv.product_id = p.id AND pv.deleted = false
+        ) DESC, p.id ASC
+        LIMIT :limit OFFSET :offset
+        """)
+    Flux<Product> findAllByCategoryOrderByPriceDesc(Long categoryId, int limit, long offset);
 }

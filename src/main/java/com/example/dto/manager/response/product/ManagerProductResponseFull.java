@@ -2,6 +2,7 @@ package com.example.dto.manager.response.product;
 
 import java.util.List;
 
+import com.example.dto.manager.response.auditable.AuditableResponse;
 import com.example.dto.manager.response.images.ManagerProductImageResponse;
 import com.example.dto.manager.response.variant.ManagerVariantResponseFull;
 
@@ -30,4 +31,5 @@ public class ManagerProductResponseFull {
     private List<ManagerProductImageResponse> images;
 
     private List<ManagerVariantResponseFull> variants;
+
 }
