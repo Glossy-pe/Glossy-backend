@@ -72,7 +72,7 @@ public class ManagerOrderItemService {
                 .then(variantRepository.findById(request.getProductVariantId()))
                 .flatMap(variant -> {
                     OrderItem entity = managerOrderItemMapper.toEntity(request);
-                    entity.setUnitPrice(variant.getPrice());
+//                    entity.setUnitPrice(variant.getPrice());
                     return orderItemRepository.save(entity);
                 })
                 .map(managerOrderItemMapper::toResponse);
