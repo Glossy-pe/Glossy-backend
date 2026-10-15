@@ -113,24 +113,23 @@ public class ManagerProductRestFullService {
             };
         }
     }
-    public Flux<ManagerProductResponseFull> searchProductsFull(String query) {
-        if (query == null || query.trim().isEmpty()) {
-            return Flux.empty();
-        }
-        String normalizedQuery = query.trim();
+    public Flux<ManagerProductResponseFull> searchProductsFull(String query, Long categoryId) {
+        if (query == null || query.trim().isEmpty()) return Flux.empty();
+        String q = query.trim();
 
-        return productRepository.findTop5ByNameContainingIgnoreCase(normalizedQuery)
+        Flux<Product> found = (categoryId != null)
+                ? productRepository.findByNameContainingIgnoreCaseAndCategoryIdOrderByNameAsc(q, categoryId)
+                : productRepository.findByNameContainingIgnoreCaseOrderByNameAsc(q);
+
+        return found.take(20)
                 .flatMapSequential(product ->
-                        Mono.zip(
-                                resolveImages(product.getId()),
-                                resolveVariants(product.getId())
-                        ).map(tuple -> {
-                            ManagerProductResponseFull response = productMapper.toResponseFull(product);
-                            response.setImages(tuple.getT1());
-                            response.setVariants(tuple.getT2());
-                            return response;
-                        })
-                );
+                        Mono.zip(resolveImages(product.getId()), resolveVariants(product.getId()))
+                                .map(tuple -> {
+                                    ManagerProductResponseFull r = productMapper.toResponseFull(product);
+                                    r.setImages(tuple.getT1());
+                                    r.setVariants(tuple.getT2());
+                                    return r;
+                                }));
     }
 
     // ── Helpers privados, reutilizados por los 3 métodos públicos ─────

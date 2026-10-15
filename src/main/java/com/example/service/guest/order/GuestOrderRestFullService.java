@@ -71,7 +71,6 @@ public class GuestOrderRestFullService {
                                     GuestOrderResponseFull response = managerOrderMapper.toResponseFull(order);
                                     response.setItems(items);
                                     response.setTotal(calculateTotal(items));
-                                    applyOrderFlags(response, items);
 
                                     if (order.getOrderStatusId() == null) {
                                         response.setOrderStatus(null);
@@ -93,21 +92,6 @@ public class GuestOrderRestFullService {
                         ? i.getUnitPrice().multiply(BigDecimal.valueOf(i.getQuantity()))
                         : BigDecimal.ZERO)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
-    private void applyOrderFlags(GuestOrderResponseFull response, List<GuestOrderItemResponseFull> items) {
-        boolean paid = !items.isEmpty() && items.stream()
-                .allMatch(i -> i.getPaidQuantity() >= i.getQuantity());
-
-        boolean separated = !items.isEmpty() && items.stream()
-                .allMatch(i -> i.getSeparatedQuantity() >= i.getQuantity());
-
-        boolean packed = !items.isEmpty() && items.stream()
-                .allMatch(i -> i.getPackedQuantity() >= i.getQuantity());
-
-        response.setPaid(paid);
-        response.setSeparated(separated);
-        response.setPacked(packed);
     }
 
     public Mono<GuestOrderResponseFull> getOrderByToken(String token) {

@@ -283,4 +283,7 @@ public interface ProductRepository extends ReactiveCrudRepository<Product, Long>
         LIMIT :limit OFFSET :offset
         """)
     Flux<Product> findAllByCategoryOrderByPriceDesc(Long categoryId, int limit, long offset);
+
+    Flux<Product> findByNameContainingIgnoreCaseOrderByNameAsc(String name);
+    Flux<Product> findByNameContainingIgnoreCaseAndCategoryIdOrderByNameAsc(String name, Long categoryId);
 }

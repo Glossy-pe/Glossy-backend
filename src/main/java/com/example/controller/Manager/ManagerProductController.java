@@ -80,7 +80,9 @@ public class ManagerProductController {
     }
 
     @GetMapping("/search")
-    public Flux<ManagerProductResponseFull> search(@RequestParam String q) {
-        return managerProductRestFullService.searchProductsFull(q);
+    public Flux<ManagerProductResponseFull> search(
+            @RequestParam String q,
+            @RequestParam(required = false) Long categoryId) {
+        return managerProductRestFullService.searchProductsFull(q, categoryId);
     }
 }

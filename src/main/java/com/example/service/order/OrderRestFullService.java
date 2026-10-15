@@ -38,25 +38,4 @@ public class OrderRestFullService {
                                 })
                 );
     }
-
-    // service
-//    public Mono<PageResponse<OrderResponseFull>> getAllOrdersFull(String name, Pageable pageable) {
-//        String q = (name == null || name.isBlank()) ? null : name;
-//        return orderRepository.count(q)
-//                .flatMap(total ->
-//                        orderRepository.findAllBy(q, pageable.getPageSize(), (long) pageable.getPageNumber() * pageable.getPageSize())
-//                                .flatMap(order ->
-//                                        orderItemRepository.findByOrderId(order.getId())
-//                                                .map(orderItemMapper::toResponse)
-//                                                .collectList()
-//                                                .map(orderItems -> {
-//                                                    OrderResponseFull response = orderMapper.toResponseFull(order);
-//                                                    response.setItems(orderItems);
-//                                                    return response;
-//                                                }), 5
-//                                )
-//                                .collectList()
-//                                .map(orders -> PageResponse.of(orders, pageable.getPageNumber(), pageable.getPageSize(), total))
-//                );
-//    }
 }

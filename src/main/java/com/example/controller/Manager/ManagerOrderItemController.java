@@ -6,6 +6,7 @@ import com.example.dto.manager.request.order_item.ManagerOrderItemRequest;
 import com.example.dto.manager.response.order_item.ManagerOrderItemResponse;
 import com.example.dto.manager.response.order_item.ManagerOrderItemResponseFull;
 import com.example.dto.manager.response.page.ManagerPageResponse;
+import com.example.dto.manager.response.product.ManagerProductOrderResponse;
 import com.example.service.manager.order_item.ManagerOrderItemService;
 import com.example.service.order_item.OrderItemService;
 import lombok.RequiredArgsConstructor;
@@ -55,5 +56,16 @@ public class ManagerOrderItemController {
     @DeleteMapping("/{id}")
     public Mono<Void> delete(@PathVariable Long id) {
         return managerOrderItemService.delete(id);
+    }
+
+    @GetMapping("/by-product/{productId}")
+    public Mono<ManagerPageResponse<ManagerProductOrderResponse>> getOrdersByProduct(
+            @PathVariable Long productId,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Long orderStatusId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return managerOrderItemService.getOrdersByProduct(
+                productId, name, orderStatusId, PageRequest.of(page, size));
     }
 }

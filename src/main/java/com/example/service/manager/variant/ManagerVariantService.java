@@ -43,16 +43,14 @@ public class ManagerVariantService {
     }
 
     public Mono<Void> deductStock(Long variantId, int quantity) {
-        return variantRepository.findById(variantId)
-                .switchIfEmpty(Mono.error(new ResourceNotFoundException("Variant not found with id: " + variantId)))
-                .flatMap(variant -> {
-                    if (variant.getStock() < quantity) {
-                        return Mono.error(new IllegalStateException("Insufficient stock for variant id: " + variantId));
-                    }
-                    variant.setStock(variant.getStock() - quantity);
-                    return variantRepository.save(variant);
-                })
-                .then();
+        return variantRepository.deductStock(variantId, quantity)
+                .flatMap(rows -> {
+                    if (rows > 0) return Mono.<Void>empty();
+                    return variantRepository.existsById(variantId)
+                            .flatMap(exists -> exists
+                                    ? Mono.<Void>error(new IllegalStateException("Insufficient stock for variant id: " + variantId))
+                                    : Mono.<Void>error(new ResourceNotFoundException("Variant not found with id: " + variantId)));
+                });
     }
 
     public Mono<ManagerVariantResponse> update(Long id, ManagerVariantRequest request) {
@@ -71,12 +69,10 @@ public class ManagerVariantService {
     }
 
     public Mono<Void> restoreStock(Long variantId, int quantity) {
-        return variantRepository.findById(variantId)
-                .flatMap(variant -> {
-                    variant.setStock(variant.getStock() + quantity);
-                    return variantRepository.save(variant);
-                })
-                .then();
+        return variantRepository.restoreStock(variantId, quantity)
+                .flatMap(rows -> rows > 0
+                        ? Mono.<Void>empty()
+                        : Mono.<Void>error(new ResourceNotFoundException("Variant not found with id: " + variantId)));
     }
 
     public Mono<ManagerVariantQueryProjectionResponse> getVariantDetail(Long variantId) {

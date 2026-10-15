@@ -18,11 +18,11 @@ public class ManagerOrderItemResponseFull {
 
     private int quantity;
 
-    private int paidQuantity = 0;
+    private Boolean isSeparated;
 
-    private int separatedQuantity = 0;
+    private Boolean isPaid;
 
-    private int packedQuantity = 0;
+    private Boolean isPacked;
 
     private BigDecimal amountPaid;
 

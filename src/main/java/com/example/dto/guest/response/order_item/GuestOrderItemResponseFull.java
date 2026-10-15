@@ -18,12 +18,6 @@ public class GuestOrderItemResponseFull {
 
     private int quantity;
 
-    private int paidQuantity = 0;
-
-    private int separatedQuantity = 0;
-
-    private int packedQuantity = 0;
-
     private BigDecimal amountPaid;
 
     private BigDecimal unitPrice;

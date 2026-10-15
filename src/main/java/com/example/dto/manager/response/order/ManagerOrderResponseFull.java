@@ -4,6 +4,7 @@ import com.example.dto.admin.response.order_item.OrderItemResponse;
 import com.example.dto.manager.response.auditable.AuditableResponse;
 import com.example.dto.manager.response.order_item.ManagerOrderItemResponse;
 import com.example.dto.manager.response.order_item.ManagerOrderItemResponseFull;
+import com.example.dto.manager.response.order_item.ManagerOrderItemResponseStructured;
 import com.example.dto.manager.response.order_status.ManagerOrderStatusResponse;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,15 +34,7 @@ public class ManagerOrderResponseFull extends AuditableResponse {
 
     private ManagerOrderStatusResponse orderStatus;
 
-    private Boolean packed;
-
-    private Boolean separated;
-
-    private Boolean paid;
-
-    private BigDecimal costTotal;
-
     private BigDecimal total;
 
-    private List<ManagerOrderItemResponseFull> items;
+    private List<ManagerOrderItemResponseStructured> items;
 }

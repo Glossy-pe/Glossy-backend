@@ -135,3 +135,19 @@ ADD COLUMN description TEXT NULL;
 ALTER TABLE orders ADD COLUMN public_token VARCHAR(36) UNIQUE;
 ALTER TABLE orders ADD COLUMN expires_at TIMESTAMP;
 CREATE UNIQUE INDEX idx_orders_public_token ON orders(public_token);
+
+
+UPDATE order_item
+SET
+is_paid = CASE
+WHEN paid_quantity = 0 THEN FALSE
+ELSE TRUE
+END,
+is_separated = CASE
+WHEN separated_quantity = 0 THEN FALSE
+ELSE TRUE
+END,
+is_packed = CASE
+WHEN packed_quantity = 0 THEN FALSE
+ELSE TRUE
+END;

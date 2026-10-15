@@ -4,6 +4,9 @@ import com.example.dto.manager.request.order_item.ManagerOrderItemRequest;
 import com.example.dto.manager.response.order_item.ManagerOrderItemResponse;
 import com.example.dto.manager.response.order_item.ManagerOrderItemResponseFull;
 import com.example.dto.manager.response.page.ManagerPageResponse;
+import com.example.dto.manager.response.product.ManagerProductOrderResponse;
+import com.example.dto.manager.response.product.ManagerProductOrderRow;
+import com.example.dto.manager.response.product.ManagerProductOrderVariantResponse;
 import com.example.entity.OrderItem;
 import com.example.exception.ResourceNotFoundException;
 import com.example.mapper.manager.ManagerOrderItemMapper;
@@ -17,6 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import com.example.exception.DuplicateOrderItemException;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ManagerOrderItemService {
@@ -69,12 +76,7 @@ public class ManagerOrderItemService {
     @Transactional
     public Mono<ManagerOrderItemResponse> create(ManagerOrderItemRequest request) {
         return managerVariantService.deductStock(request.getProductVariantId(), request.getQuantity())
-                .then(variantRepository.findById(request.getProductVariantId()))
-                .flatMap(variant -> {
-                    OrderItem entity = managerOrderItemMapper.toEntity(request);
-//                    entity.setUnitPrice(variant.getPrice());
-                    return orderItemRepository.save(entity);
-                })
+                .then(Mono.defer(() -> orderItemRepository.save(managerOrderItemMapper.toEntity(request))))
                 .map(managerOrderItemMapper::toResponse);
     }
 
@@ -110,6 +112,42 @@ public class ManagerOrderItemService {
                         managerVariantService.restoreStock(item.getProductVariantId(), item.getQuantity())
                                 .then(orderItemRepository.deleteById(id))
                 );
+    }
+
+    public Mono<ManagerPageResponse<ManagerProductOrderResponse>> getOrdersByProduct(
+            Long productId, String name, Long orderStatusId, PageRequest pageable) {
+
+        String normalized = (name == null || name.isBlank()) ? null : name.trim();
+
+        Mono<Long> total = orderItemRepository.countOrdersByProduct(productId, normalized, orderStatusId);
+
+        Mono<List<ManagerProductOrderResponse>> content = orderItemRepository
+                .findOrdersByProduct(productId, normalized, orderStatusId,
+                        pageable.getPageSize(), pageable.getOffset())
+                .collectList()
+                .flatMap(rows -> {
+                    if (rows.isEmpty()) return Mono.just(List.<ManagerProductOrderResponse>of());
+
+                    List<Long> ids = rows.stream().map(ManagerProductOrderRow::orderId).toList();
+
+                    return orderItemRepository.findProductItemsByOrderIds(productId, ids)
+                            .collectList()
+                            .map(items -> {
+                                Map<Long, List<ManagerProductOrderVariantResponse>> byOrder = items.stream()
+                                        .collect(Collectors.groupingBy(ManagerProductOrderVariantResponse::orderId));
+
+                                return rows.stream()
+                                        .map(r -> new ManagerProductOrderResponse(
+                                                r.orderId(), r.orderCode(), r.customerName(),
+                                                r.customerAddress(), r.orderStatusId(), r.createdAt(),
+                                                byOrder.getOrDefault(r.orderId(), List.of())))
+                                        .toList();
+                            });
+                });
+
+        return Mono.zip(content, total)
+                .map(t -> ManagerPageResponse.of(
+                        t.getT1(), pageable.getPageNumber(), pageable.getPageSize(), t.getT2()));
     }
 
 }

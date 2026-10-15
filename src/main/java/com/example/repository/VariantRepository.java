@@ -3,6 +3,7 @@ package com.example.repository;
 import com.example.dto.manager.response.variant.ManagerVariantQueryProjectionResponse;
 import com.example.entity.ProductVariant;
 
+import org.springframework.data.r2dbc.repository.Modifying;
 import org.springframework.data.r2dbc.repository.Query;
 import reactor.core.publisher.Flux;
 
@@ -12,6 +13,13 @@ import reactor.core.publisher.Mono;
 public interface VariantRepository extends ReactiveCrudRepository<ProductVariant, Long> {
         Flux<ProductVariant> findByProductId(Long productId);
 
+        @Modifying
+        @Query("UPDATE product_variant SET stock = stock - :qty WHERE id = :id AND stock >= :qty")
+        Mono<Integer> deductStock(Long id, int qty);
+
+        @Modifying
+        @Query("UPDATE product_variant SET stock = stock + :qty WHERE id = :id")
+        Mono<Integer> restoreStock(Long id, int qty);
 
         @Query("""
     SELECT
