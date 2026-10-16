@@ -117,7 +117,7 @@ public class ManagerOrderItemService {
     public Mono<ManagerPageResponse<ManagerProductOrderResponse>> getOrdersByProduct(
             Long productId, String name, Long orderStatusId, PageRequest pageable) {
 
-        String normalized = (name == null || name.isBlank()) ? null : name.trim();
+        String normalized = normalizeSearch(name);
 
         Mono<Long> total = orderItemRepository.countOrdersByProduct(productId, normalized, orderStatusId);
 
@@ -150,4 +150,11 @@ public class ManagerOrderItemService {
                         t.getT1(), pageable.getPageNumber(), pageable.getPageSize(), t.getT2()));
     }
 
+    /** Solo letras y números, en minúsculas. Devuelve null si no queda nada. */
+    private static String normalizeSearch(String raw) {
+        if (raw == null) return null;
+        String s = raw.replaceAll("[\\s\\p{Z}\\u200B\\uFEFF]+", "").toLowerCase();
+        if (s.isEmpty()) return null;
+        return s.replaceAll("([\\\\%_])", "\\\\$1"); // \ % _ → literales
+    }
 }

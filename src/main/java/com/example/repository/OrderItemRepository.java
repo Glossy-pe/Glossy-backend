@@ -53,7 +53,7 @@ public interface OrderItemRepository extends ReactiveCrudRepository<OrderItem, L
         INNER JOIN product_variant pv ON pv.id = oi.product_variant_id
         WHERE oi.order_id = o.id AND pv.product_id = :productId
     )
-    AND (:name IS NULL OR LOWER(REPLACE(o.customer_name, ' ', '')) LIKE LOWER(CONCAT('%', REPLACE(:name, ' ', ''), '%')))
+    AND (:name IS NULL OR LOWER(regexp_replace(o.customer_name, '[[:space:]' || chr(160) || chr(8199) || chr(8239) || chr(8203) || ']', '', 'g')) LIKE CONCAT('%', :name, '%'))
     AND (:orderStatusId IS NULL OR o.order_status_id = :orderStatusId)
     ORDER BY o.id DESC
     LIMIT :size OFFSET :offset
@@ -72,7 +72,7 @@ public interface OrderItemRepository extends ReactiveCrudRepository<OrderItem, L
         INNER JOIN product_variant pv ON pv.id = oi.product_variant_id
         WHERE oi.order_id = o.id AND pv.product_id = :productId
     )
-    AND (:name IS NULL OR LOWER(REPLACE(o.customer_name, ' ', '')) LIKE LOWER(CONCAT('%', REPLACE(:name, ' ', ''), '%')))
+    AND (:name IS NULL OR LOWER(regexp_replace(o.customer_name, '[[:space:]' || chr(160) || chr(8199) || chr(8239) || chr(8203) || ']', '', 'g')) LIKE CONCAT('%', :name, '%'))
     AND (:orderStatusId IS NULL OR o.order_status_id = :orderStatusId)
     """)
     Mono<Long> countOrdersByProduct(
