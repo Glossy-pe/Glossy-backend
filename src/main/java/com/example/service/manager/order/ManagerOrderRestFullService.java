@@ -54,15 +54,14 @@ public class ManagerOrderRestFullService {
             Long variantId,
             Long orderStatusId,
             Boolean isPaid,
-            Boolean isSeparated,
             Boolean isPacked,
             Pageable pageable
     ) {
-        return orderRepository.count(name, variantId, orderStatusId, isPaid, isSeparated, isPacked)
+        return orderRepository.count(name, variantId, orderStatusId, isPaid, isPacked)
                 .flatMap(total ->
                         orderRepository.findAllBy(
                                         name, variantId, orderStatusId,
-                                        isPaid, isSeparated, isPacked,
+                                        isPaid, isPacked,
                                         pageable.getPageSize(), pageable.getOffset()
                                 )
                                 .flatMapSequential(order ->

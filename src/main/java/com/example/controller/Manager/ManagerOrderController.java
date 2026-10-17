@@ -46,9 +46,8 @@ public class ManagerOrderController {
     public Mono<PageResponse<ManagerOrderResponseFull>> getAllFull(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) Long variantId,
-            @RequestParam(required = false) Long orderStatusId,    // 👈
+            @RequestParam(required = false) Long orderStatusId,
             @RequestParam(required = false) Boolean isPaid,
-            @RequestParam(required = false) Boolean isSeparated,
             @RequestParam(required = false) Boolean isPacked,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
@@ -56,9 +55,8 @@ public class ManagerOrderController {
         return managerOrderRestFullService.getAllOrdersFull(
                 name,
                 variantId,
-                orderStatusId,   // 👈
+                orderStatusId,
                 isPaid,
-                isSeparated,
                 isPacked,
                 PageRequest.of(page, size)
         );

@@ -1,7 +1,6 @@
 package com.example.repository;
 
 import com.example.entity.Order;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
@@ -21,20 +20,14 @@ public interface OrderRepository extends ReactiveCrudRepository<Order, Long> {
         AND (:orderStatusId IS NULL OR o.order_status_id = :orderStatusId)
         AND (:isPaid IS NULL OR (
             CASE WHEN :isPaid = true
-                 THEN (SELECT COUNT(*) FILTER (WHERE COALESCE(oi.amount_paid, 0) < oi.quantity * oi.unit_price) FROM order_item oi WHERE oi.order_id = o.id) = 0
-                 ELSE (SELECT COUNT(*) FILTER (WHERE COALESCE(oi.amount_paid, 0) < oi.quantity * oi.unit_price) FROM order_item oi WHERE oi.order_id = o.id) > 0
-            END
-        ))
-        AND (:isSeparated IS NULL OR (
-            CASE WHEN :isSeparated = true
-                 THEN (SELECT COUNT(*) FILTER (WHERE oi.separated_quantity < oi.quantity) FROM order_item oi WHERE oi.order_id = o.id) = 0
-                 ELSE (SELECT COUNT(*) FILTER (WHERE oi.separated_quantity < oi.quantity) FROM order_item oi WHERE oi.order_id = o.id) > 0
+                 THEN NOT EXISTS (SELECT 1 FROM order_item oi WHERE oi.order_id = o.id AND oi.is_paid IS NOT TRUE)
+                 ELSE EXISTS     (SELECT 1 FROM order_item oi WHERE oi.order_id = o.id AND oi.is_paid IS NOT TRUE)
             END
         ))
         AND (:isPacked IS NULL OR (
             CASE WHEN :isPacked = true
-                 THEN (SELECT COUNT(*) FILTER (WHERE oi.packed_quantity < oi.quantity) FROM order_item oi WHERE oi.order_id = o.id) = 0
-                 ELSE (SELECT COUNT(*) FILTER (WHERE oi.packed_quantity < oi.quantity) FROM order_item oi WHERE oi.order_id = o.id) > 0
+                 THEN NOT EXISTS (SELECT 1 FROM order_item oi WHERE oi.order_id = o.id AND oi.is_packed IS NOT TRUE)
+                 ELSE EXISTS     (SELECT 1 FROM order_item oi WHERE oi.order_id = o.id AND oi.is_packed IS NOT TRUE)
             END
         ))
         ORDER BY o.id DESC
@@ -45,7 +38,6 @@ public interface OrderRepository extends ReactiveCrudRepository<Order, Long> {
             @Param("variantId") Long variantId,
             @Param("orderStatusId") Long orderStatusId,
             @Param("isPaid") Boolean isPaid,
-            @Param("isSeparated") Boolean isSeparated,
             @Param("isPacked") Boolean isPacked,
             @Param("size") int size,
             @Param("offset") long offset
@@ -62,20 +54,14 @@ public interface OrderRepository extends ReactiveCrudRepository<Order, Long> {
         AND (:orderStatusId IS NULL OR o.order_status_id = :orderStatusId)
         AND (:isPaid IS NULL OR (
             CASE WHEN :isPaid = true
-                 THEN (SELECT COUNT(*) FILTER (WHERE COALESCE(oi.amount_paid, 0) < oi.quantity * oi.unit_price) FROM order_item oi WHERE oi.order_id = o.id) = 0
-                 ELSE (SELECT COUNT(*) FILTER (WHERE COALESCE(oi.amount_paid, 0) < oi.quantity * oi.unit_price) FROM order_item oi WHERE oi.order_id = o.id) > 0
-            END
-        ))
-        AND (:isSeparated IS NULL OR (
-            CASE WHEN :isSeparated = true
-                 THEN (SELECT COUNT(*) FILTER (WHERE oi.separated_quantity < oi.quantity) FROM order_item oi WHERE oi.order_id = o.id) = 0
-                 ELSE (SELECT COUNT(*) FILTER (WHERE oi.separated_quantity < oi.quantity) FROM order_item oi WHERE oi.order_id = o.id) > 0
+                 THEN NOT EXISTS (SELECT 1 FROM order_item oi WHERE oi.order_id = o.id AND oi.is_paid IS NOT TRUE)
+                 ELSE EXISTS     (SELECT 1 FROM order_item oi WHERE oi.order_id = o.id AND oi.is_paid IS NOT TRUE)
             END
         ))
         AND (:isPacked IS NULL OR (
             CASE WHEN :isPacked = true
-                 THEN (SELECT COUNT(*) FILTER (WHERE oi.packed_quantity < oi.quantity) FROM order_item oi WHERE oi.order_id = o.id) = 0
-                 ELSE (SELECT COUNT(*) FILTER (WHERE oi.packed_quantity < oi.quantity) FROM order_item oi WHERE oi.order_id = o.id) > 0
+                 THEN NOT EXISTS (SELECT 1 FROM order_item oi WHERE oi.order_id = o.id AND oi.is_packed IS NOT TRUE)
+                 ELSE EXISTS     (SELECT 1 FROM order_item oi WHERE oi.order_id = o.id AND oi.is_packed IS NOT TRUE)
             END
         ))
     """)
@@ -84,7 +70,6 @@ public interface OrderRepository extends ReactiveCrudRepository<Order, Long> {
             @Param("variantId") Long variantId,
             @Param("orderStatusId") Long orderStatusId,
             @Param("isPaid") Boolean isPaid,
-            @Param("isSeparated") Boolean isSeparated,
             @Param("isPacked") Boolean isPacked
     );
 
