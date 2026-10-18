@@ -19,7 +19,7 @@ public interface OrderRepository extends ReactiveCrudRepository<Order, Long> {
         ))
         AND (:orderStatusId IS NULL OR o.order_status_id = :orderStatusId)
         AND (:isPaid IS NULL OR (
-            SELECT COALESCE(SUM(oi.amount_paid), 0) >= COALESCE(SUM(COALESCE(oi.defined_price, 0) * oi.quantity), 0)
+            SELECT COALESCE(SUM(oi.amount_paid), 0) >= COALESCE(SUM(COALESCE(oi.unit_price, 0) * oi.quantity), 0)
             FROM order_item oi
             WHERE oi.order_id = o.id
         ) = :isPaid)
@@ -52,7 +52,7 @@ public interface OrderRepository extends ReactiveCrudRepository<Order, Long> {
         ))
         AND (:orderStatusId IS NULL OR o.order_status_id = :orderStatusId)
         AND (:isPaid IS NULL OR (
-            SELECT COALESCE(SUM(oi.amount_paid), 0) >= COALESCE(SUM(COALESCE(oi.defined_price, 0) * oi.quantity), 0)
+            SELECT COALESCE(SUM(oi.amount_paid), 0) >= COALESCE(SUM(COALESCE(oi.unit_price, 0) * oi.quantity), 0)
             FROM order_item oi
             WHERE oi.order_id = o.id
         ) = :isPaid)
