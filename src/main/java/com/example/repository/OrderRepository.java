@@ -19,11 +19,10 @@ public interface OrderRepository extends ReactiveCrudRepository<Order, Long> {
         ))
         AND (:orderStatusId IS NULL OR o.order_status_id = :orderStatusId)
         AND (:isPaid IS NULL OR (
-            CASE WHEN :isPaid = true
-                 THEN NOT EXISTS (SELECT 1 FROM order_item oi WHERE oi.order_id = o.id AND oi.is_paid IS NOT TRUE)
-                 ELSE EXISTS     (SELECT 1 FROM order_item oi WHERE oi.order_id = o.id AND oi.is_paid IS NOT TRUE)
-            END
-        ))
+            SELECT COALESCE(SUM(oi.amount_paid), 0) >= COALESCE(SUM(COALESCE(oi.defined_price, 0) * oi.quantity), 0)
+            FROM order_item oi
+            WHERE oi.order_id = o.id
+        ) = :isPaid)
         AND (:isPacked IS NULL OR (
             CASE WHEN :isPacked = true
                  THEN NOT EXISTS (SELECT 1 FROM order_item oi WHERE oi.order_id = o.id AND oi.is_packed IS NOT TRUE)
@@ -53,11 +52,10 @@ public interface OrderRepository extends ReactiveCrudRepository<Order, Long> {
         ))
         AND (:orderStatusId IS NULL OR o.order_status_id = :orderStatusId)
         AND (:isPaid IS NULL OR (
-            CASE WHEN :isPaid = true
-                 THEN NOT EXISTS (SELECT 1 FROM order_item oi WHERE oi.order_id = o.id AND oi.is_paid IS NOT TRUE)
-                 ELSE EXISTS     (SELECT 1 FROM order_item oi WHERE oi.order_id = o.id AND oi.is_paid IS NOT TRUE)
-            END
-        ))
+            SELECT COALESCE(SUM(oi.amount_paid), 0) >= COALESCE(SUM(COALESCE(oi.defined_price, 0) * oi.quantity), 0)
+            FROM order_item oi
+            WHERE oi.order_id = o.id
+        ) = :isPaid)
         AND (:isPacked IS NULL OR (
             CASE WHEN :isPacked = true
                  THEN NOT EXISTS (SELECT 1 FROM order_item oi WHERE oi.order_id = o.id AND oi.is_packed IS NOT TRUE)
