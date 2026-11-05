@@ -34,4 +34,6 @@ public class Order extends Auditable {
     private String publicToken;
 
     private LocalDateTime expiresAt;
+
+    private LocalDateTime scheduledSendAt;
 }

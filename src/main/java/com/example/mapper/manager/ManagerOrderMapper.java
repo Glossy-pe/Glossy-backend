@@ -1,6 +1,7 @@
 package com.example.mapper.manager;
 
 import com.example.dto.manager.request.order.ManagerOrderRequest;
+import com.example.dto.manager.response.order.ManagerOrderCalendarResponse;
 import com.example.dto.manager.response.order.ManagerOrderResponse;
 import com.example.dto.manager.response.order.ManagerOrderResponseFull;
 import com.example.entity.Order;
@@ -22,5 +23,7 @@ public interface ManagerOrderMapper {
     @Mapping(target = "updatedAt", source = "updatedAt")
     ManagerOrderResponseFull toResponseFull(Order entity);
 
+    ManagerOrderCalendarResponse toCalendarResponse(Order order);
+    
     void updateEntity(ManagerOrderRequest request, @MappingTarget Order product);
 }

@@ -29,4 +29,5 @@ public class ManagerOrderResponse extends AuditableResponse {
     private String publicToken;
 
     private LocalDateTime expiresAt;
+    private LocalDateTime scheduledSendAt;
 }

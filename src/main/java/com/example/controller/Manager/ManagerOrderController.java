@@ -2,6 +2,8 @@ package com.example.controller.Manager;
 
 import com.example.dto.admin.response.page.PageResponse;
 import com.example.dto.manager.request.order.ManagerOrderRequest;
+import com.example.dto.manager.request.order.ManagerOrderScheduleRequest;
+import com.example.dto.manager.response.order.ManagerOrderCalendarResponse;
 import com.example.dto.manager.response.order.ManagerOrderResponse;
 import com.example.dto.manager.response.order.ManagerOrderResponseFull;
 import com.example.dto.manager.response.order_item.ManagerOrderItemResponse;
@@ -15,6 +17,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/manager/orders")
@@ -73,6 +77,19 @@ public class ManagerOrderController {
     }
 
 
+    @GetMapping("/calendar")
+    public Flux<ManagerOrderCalendarResponse> getCalendar(
+            @RequestParam LocalDateTime from,
+            @RequestParam LocalDateTime to) {
+        return managerOrderService.getScheduledBetween(from, to);
+    }
+
+    @PatchMapping("/{id}/scheduled-send-at")
+    public Mono<ManagerOrderCalendarResponse> updateScheduledSendAt(
+            @PathVariable Long id,
+            @RequestBody ManagerOrderScheduleRequest request) {
+        return managerOrderService.updateScheduledSendAt(id, request.getScheduledSendAt());
+    }
 
     @GetMapping("/{id}/order-items")
     public Mono<ManagerPageResponse<ManagerOrderItemResponse>> getVariantsByProductId(

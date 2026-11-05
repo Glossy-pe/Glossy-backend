@@ -1,11 +1,14 @@
 package com.example.repository;
 
 import com.example.entity.Order;
+import org.springframework.data.r2dbc.repository.Modifying;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.time.LocalDateTime;
 
 public interface OrderRepository extends ReactiveCrudRepository<Order, Long> {
 
@@ -69,6 +72,27 @@ public interface OrderRepository extends ReactiveCrudRepository<Order, Long> {
             @Param("orderStatusId") Long orderStatusId,
             @Param("isPaid") Boolean isPaid,
             @Param("isPacked") Boolean isPacked
+    );
+
+
+
+
+    @Query("""
+        SELECT o.* FROM orders o
+        WHERE o.scheduled_send_at >= :from
+          AND o.scheduled_send_at < :to
+        ORDER BY o.scheduled_send_at ASC
+    """)
+    Flux<Order> findScheduledBetween(
+            @Param("from") LocalDateTime from,
+            @Param("to") LocalDateTime to
+    );
+
+    @Modifying
+    @Query("UPDATE orders SET scheduled_send_at = :scheduledSendAt WHERE id = :id")
+    Mono<Integer> updateScheduledSendAt(
+            @Param("id") Long id,
+            @Param("scheduledSendAt") LocalDateTime scheduledSendAt
     );
 
     Mono<Order> findByPublicToken(String publicToken);

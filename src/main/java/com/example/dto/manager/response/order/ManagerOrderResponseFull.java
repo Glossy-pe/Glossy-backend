@@ -29,6 +29,7 @@ public class ManagerOrderResponseFull extends AuditableResponse {
     private String publicToken;
 
     private LocalDateTime expiresAt;
+    private LocalDateTime scheduledSendAt;
 
     private Long orderStatusId;
 

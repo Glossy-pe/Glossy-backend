@@ -4,6 +4,7 @@ import com.example.dto.admin.request.order.OrderRequest;
 import com.example.dto.admin.response.order.OrderResponse;
 import com.example.dto.admin.response.page.PageResponse;
 import com.example.dto.manager.request.order.ManagerOrderRequest;
+import com.example.dto.manager.response.order.ManagerOrderCalendarResponse;
 import com.example.dto.manager.response.order.ManagerOrderResponse;
 import com.example.entity.Order;
 import com.example.exception.ResourceNotFoundException;
@@ -16,8 +17,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -94,6 +97,19 @@ public class ManagerOrderService {
                 );
     }
 
+
+    public Flux<ManagerOrderCalendarResponse> getScheduledBetween(LocalDateTime from, LocalDateTime to) {
+        return orderRepository.findScheduledBetween(from, to)
+                .map(managerOrderMapper::toCalendarResponse);
+    }
+
+    public Mono<ManagerOrderCalendarResponse> updateScheduledSendAt(Long id, LocalDateTime scheduledSendAt) {
+        return orderRepository.updateScheduledSendAt(id, scheduledSendAt)
+                .flatMap(rows -> rows == 0
+                        ? Mono.error(new ResourceNotFoundException("Order not found with id: " + id))
+                        : orderRepository.findById(id))
+                .map(managerOrderMapper::toCalendarResponse);
+    }
 
     private String generateOrderCode() {
         String hex = UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();

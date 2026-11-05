@@ -17,6 +17,7 @@ public class ManagerOrderRequest {
     private String description;
 
     private LocalDateTime expiresAt;
+    private LocalDateTime scheduledSendAt;
 
 //    private String orderCode;
 
