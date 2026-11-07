@@ -21,6 +21,8 @@ server:
   netty:
     connection-timeout: 60s
     idle-timeout: 60s
+  error:
+    include-message: always
 
 cloudinary:
   cloud-name: ${CLOUDINARY_CLOUD_NAME}
