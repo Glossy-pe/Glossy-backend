@@ -4,12 +4,15 @@ import com.example.dto.manager.request.kit.ManagerKitItemRequest;
 import com.example.dto.manager.request.kit.ManagerKitRequest;
 import com.example.dto.manager.response.kit.ManagerKitDetailResponse;
 import com.example.dto.manager.response.kit.ManagerKitItemResponse;
+import com.example.dto.manager.response.kit.ManagerKitItemWithVariantsResponse;
 import com.example.dto.manager.response.kit.ManagerKitResponse;
 import com.example.service.manager.kit.ManagerKitService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/manager/kits")
@@ -62,5 +65,10 @@ public class ManagerKitController {
     @DeleteMapping("/{kitId}/items/{itemId}")
     public Mono<Void> removeItem(@PathVariable Long kitId, @PathVariable Long itemId) {
         return managerKitService.removeItem(kitId, itemId);
+    }
+
+    @GetMapping("/{id}/items-with-variants")
+    public Mono<List<ManagerKitItemWithVariantsResponse>> getItemsWithVariants(@PathVariable Long id) {
+        return managerKitService.getItemsWithVariants(id);
     }
 }

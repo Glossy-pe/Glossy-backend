@@ -10,6 +10,8 @@ import reactor.core.publisher.Flux;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import reactor.core.publisher.Mono;
 
+import java.util.Collection;
+
 public interface VariantRepository extends ReactiveCrudRepository<ProductVariant, Long> {
         Flux<ProductVariant> findByProductId(Long productId);
 
@@ -47,4 +49,6 @@ public interface VariantRepository extends ReactiveCrudRepository<ProductVariant
     LIMIT 1
     """)
         Mono<ManagerVariantQueryProjectionResponse> findVariantDetailById(Long variantId);
+
+        Flux<ProductVariant> findAllByProductIdInAndActiveTrue(Collection<Long> productIds);
 }

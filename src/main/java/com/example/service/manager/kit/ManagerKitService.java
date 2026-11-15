@@ -2,16 +2,10 @@ package com.example.service.manager.kit;
 
 import com.example.dto.manager.request.kit.ManagerKitItemRequest;
 import com.example.dto.manager.request.kit.ManagerKitRequest;
-import com.example.dto.manager.response.kit.ManagerKitDetailResponse;
-import com.example.dto.manager.response.kit.ManagerKitItemResponse;
-import com.example.dto.manager.response.kit.ManagerKitResponse;
-import com.example.entity.Kit;
-import com.example.entity.KitItem;
-import com.example.entity.Product;
+import com.example.dto.manager.response.kit.*;
+import com.example.entity.*;
 import com.example.mapper.manager.ManagerKitMapper;
-import com.example.repository.KitItemRepository;
-import com.example.repository.KitRepository;
-import com.example.repository.ProductRepository;
+import com.example.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -20,7 +14,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ManagerKitService {
@@ -32,10 +29,19 @@ public class ManagerKitService {
     private KitItemRepository kitItemRepository;
 
     @Autowired
+    private VariantRepository variantRepository;
+
+    @Autowired
     private ProductRepository productRepository;
 
     @Autowired
     private ManagerKitMapper kitMapper;
+
+    @Autowired
+    private ProductImageRepository productImageRepository;
+
+    @Autowired
+    private VariantImageRepository variantImageRepository;
 
     // ── Kits ───────────────────────────────────────────
 
@@ -198,5 +204,82 @@ public class ManagerKitService {
 
     private <T> Mono<T> fail(HttpStatus status, String message) {
         return Mono.error(new ResponseStatusException(status, message));
+    }
+
+    public Mono<List<ManagerKitItemWithVariantsResponse>> getItemsWithVariants(Long kitId) {
+        return kitRepository.existsById(kitId)
+                .flatMap(exists -> exists
+                        ? kitItemRepository.findByKitIdOrderByPosition(kitId).collectList()
+                        : this.<List<KitItem>>fail(HttpStatus.NOT_FOUND, "Kit no encontrado"))
+                .flatMap(items -> {
+                    if (items.isEmpty()) {
+                        return Mono.just(List.<ManagerKitItemWithVariantsResponse>of());
+                    }
+                    List<Long> productIds = items.stream().map(KitItem::getProductId).toList();
+
+                    return Mono.zip(
+                            productRepository.findAllByIdIn(productIds)
+                                    .collectMap(Product::getId, Product::getName),
+                            productImageRepository.findAllByProductIdIn(productIds).collectList(),
+                            variantRepository.findAllByProductIdInAndActiveTrue(productIds).collectList()
+                    ).flatMap(t -> {
+                        Map<Long, String> names = t.getT1();
+                        List<ProductVariant> variants = t.getT3();
+                        List<Long> variantIds = variants.stream().map(ProductVariant::getId).toList();
+
+                        Map<Long, String> productImg = t.getT2().stream()
+                                .filter(i -> !"video".equalsIgnoreCase(i.getResourceType()))
+                                .sorted(Comparator
+                                        .comparing((ProductImage i) -> !Boolean.TRUE.equals(i.getMainImage()))
+                                        .thenComparingInt(ProductImage::getPosition))
+                                .collect(Collectors.toMap(ProductImage::getProductId,
+                                        ProductImage::getUrl, (a, b) -> a));
+
+                        Mono<List<ProductVariantImage>> variantImages = variantIds.isEmpty()
+                                ? Mono.just(List.of())
+                                : variantImageRepository.findAllByProductVariantIdIn(variantIds).collectList();
+
+                        return variantImages.map(vi -> {
+                            Map<Long, String> variantImg = vi.stream()
+                                    .filter(i -> !"video".equalsIgnoreCase(i.getResourceType()))
+                                    .sorted(Comparator
+                                            .comparing((ProductVariantImage i) -> !Boolean.TRUE.equals(i.getMainImage()))
+                                            .thenComparingInt(ProductVariantImage::getPosition))
+                                    .collect(Collectors.toMap(ProductVariantImage::getProductVariantId,
+                                            ProductVariantImage::getUrl, (a, b) -> a));
+
+                            Map<Long, List<ProductVariant>> byProduct = variants.stream()
+                                    .collect(Collectors.groupingBy(ProductVariant::getProductId));
+
+                            return items.stream().map(item -> {
+                                var r = new ManagerKitItemWithVariantsResponse();
+                                r.setItemId(item.getId());
+                                r.setPosition(item.getPosition());
+                                r.setProductId(item.getProductId());
+                                r.setProductName(names.get(item.getProductId()));
+                                r.setImage(productImg.get(item.getProductId()));
+                                r.setVariants(byProduct.getOrDefault(item.getProductId(), List.of())
+                                        .stream()
+                                        .sorted(Comparator.comparing(ProductVariant::getPosition,
+                                                Comparator.nullsLast(Comparator.naturalOrder())))
+                                        .map(v -> toVariantResponse(v, variantImg.get(v.getId())))
+                                        .toList());
+                                return r;
+                            }).toList();
+                        });
+                    });
+                });
+    }
+
+    private ManagerKitVariantResponse toVariantResponse(ProductVariant v, String image) {
+        var r = new ManagerKitVariantResponse();
+        r.setId(v.getId());
+        r.setToneName(v.getToneName());
+        r.setToneCode(v.getToneCode());
+        r.setPrice(v.getPrice());
+        r.setStock(v.getStock());
+        r.setPosition(v.getPosition());
+        r.setImage(image);
+        return r;
     }
 }
