@@ -1,5 +1,6 @@
 package com.example.controller.Manager;
 
+import com.example.dto.manager.request.variant.ManagerVariantBulkRequest;
 import com.example.dto.manager.request.variant.ManagerVariantRequest;
 import com.example.dto.manager.response.images.ManagerProductImageResponse;
 import com.example.dto.manager.response.images.ManagerVariantImageResponse;
@@ -31,6 +32,11 @@ public class ManagerVariantController {
     @GetMapping("/{id}")
     public Mono<ManagerVariantResponse> getById(@PathVariable Long id) {
         return managerVariantService.getVariantById(id);
+    }
+
+    @PostMapping("/bulk")
+    public Flux<ManagerVariantResponse> createBulk(@RequestBody ManagerVariantBulkRequest request) {
+        return managerVariantService.createBulk(request);
     }
 
     @GetMapping("/{id}/images")

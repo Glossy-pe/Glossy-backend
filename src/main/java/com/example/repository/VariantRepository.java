@@ -51,4 +51,6 @@ public interface VariantRepository extends ReactiveCrudRepository<ProductVariant
         Mono<ManagerVariantQueryProjectionResponse> findVariantDetailById(Long variantId);
 
         Flux<ProductVariant> findAllByProductIdInAndActiveTrue(Collection<Long> productIds);
+        @Query("SELECT COALESCE(MAX(position), 0) FROM product_variant WHERE product_id = :productId")
+        Mono<Integer> findMaxPositionByProductId(Long productId);
 }
