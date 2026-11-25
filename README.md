@@ -1,153 +1,34 @@
     git tag --sort=-creatordate | head -n 1
 
-git add . && git commit -m "Mi commit" && git push
--- cart
-ALTER TABLE cart
-    ADD COLUMN IF NOT EXISTS created_at TIMESTAMP,
-    ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP,
-    ADD COLUMN IF NOT EXISTS deleted BOOLEAN NOT NULL DEFAULT FALSE,
-    ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP;
+-- Lo que queda de cada variante dentro de un BOX (solo aplica a compras BOX)
+ALTER TABLE purchase_item ADD COLUMN remaining INT NOT NULL DEFAULT 0;
+ALTER TABLE purchase_item ADD CONSTRAINT chk_purchase_item_remaining
+CHECK (remaining >= 0 AND remaining <= quantity);
 
--- cart_item
-ALTER TABLE cart_item
-    ADD COLUMN IF NOT EXISTS created_at TIMESTAMP,
-    ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP,
-    ADD COLUMN IF NOT EXISTS deleted BOOLEAN NOT NULL DEFAULT FALSE,
-    ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP;
+-- Para la futura venta: buscar rápido qué BOX tienen unidades de una variante
+CREATE INDEX idx_purchase_item_remaining ON purchase_item (variant_id) WHERE remaining > 0;
 
--- category
-ALTER TABLE category
-    ADD COLUMN IF NOT EXISTS created_at TIMESTAMP,
-    ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP,
-    ADD COLUMN IF NOT EXISTS deleted BOOLEAN NOT NULL DEFAULT FALSE,
-    ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP;
-
--- label
-ALTER TABLE label
-    ADD COLUMN IF NOT EXISTS created_at TIMESTAMP,
-    ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP,
-    ADD COLUMN IF NOT EXISTS deleted BOOLEAN NOT NULL DEFAULT FALSE,
-    ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP;
-
--- orders (ya tenía created_at, solo agrega las nuevas)
-ALTER TABLE orders
-    ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP,
-    ADD COLUMN IF NOT EXISTS deleted BOOLEAN NOT NULL DEFAULT FALSE,
-    ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP;
-
--- order_item
-ALTER TABLE order_item
-    ADD COLUMN IF NOT EXISTS created_at TIMESTAMP,
-    ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP,
-    ADD COLUMN IF NOT EXISTS deleted BOOLEAN NOT NULL DEFAULT FALSE,
-    ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP;
-
--- product
-ALTER TABLE product
-    ADD COLUMN IF NOT EXISTS created_at TIMESTAMP,
-    ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP,
-    ADD COLUMN IF NOT EXISTS deleted BOOLEAN NOT NULL DEFAULT FALSE,
-    ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP;
-
--- product_image
-ALTER TABLE product_image
-    ADD COLUMN IF NOT EXISTS created_at TIMESTAMP,
-    ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP,
-    ADD COLUMN IF NOT EXISTS deleted BOOLEAN NOT NULL DEFAULT FALSE,
-    ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP;
-
--- product_label
-ALTER TABLE product_label
-    ADD COLUMN IF NOT EXISTS created_at TIMESTAMP,
-    ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP,
-    ADD COLUMN IF NOT EXISTS deleted BOOLEAN NOT NULL DEFAULT FALSE,
-    ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP;
-
--- product_variant
-ALTER TABLE product_variant
-    ADD COLUMN IF NOT EXISTS created_at TIMESTAMP,
-    ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP,
-    ADD COLUMN IF NOT EXISTS deleted BOOLEAN NOT NULL DEFAULT FALSE,
-    ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP;
-
--- product_variant_image
-ALTER TABLE product_variant_image
-    ADD COLUMN IF NOT EXISTS created_at TIMESTAMP,
-    ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP,
-    ADD COLUMN IF NOT EXISTS deleted BOOLEAN NOT NULL DEFAULT FALSE,
-    ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP;
-
--- users
-ALTER TABLE users
-    ADD COLUMN IF NOT EXISTS created_at TIMESTAMP,
-    ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP,
-    ADD COLUMN IF NOT EXISTS deleted BOOLEAN NOT NULL DEFAULT FALSE,
-    ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP;
-
-
-ALTER TABLE order_item ADD COLUMN IF NOT EXISTS paid_quantity INT NOT NULL DEFAULT 0;
-ALTER TABLE order_item ADD COLUMN IF NOT EXISTS separated_quantity INT NOT NULL DEFAULT 0;
-ALTER TABLE order_item ADD COLUMN IF NOT EXISTS packed_quantity INT NOT NULL DEFAULT 0;
-ALTER TABLE order_item ADD COLUMN amount_paid NUMERIC(10,2);
-
-ALTER TABLE order_item ADD COLUMN unit_price DECIMAL(10,2);
-
-UPDATE order_item oi
-SET unit_price = (
-SELECT price FROM product_variant pv
-WHERE pv.id = oi.product_variant_id
+CREATE TABLE box_presentation (
+id          BIGSERIAL PRIMARY KEY,
+product_id  BIGINT    NOT NULL UNIQUE REFERENCES product(id),
+total_units INT       NOT NULL CHECK (total_units > 0),
+created_at  TIMESTAMP NOT NULL DEFAULT now()
 );
 
-
-**Meilisearch integration has been removed from this branch.**
-
-
-CREATE TABLE order_status (
-id BIGSERIAL PRIMARY KEY,
-code VARCHAR(50) NOT NULL,
-description VARCHAR(255)
+CREATE TABLE sale_template (
+id         BIGSERIAL PRIMARY KEY,
+product_id BIGINT        NOT NULL REFERENCES product(id),
+name       VARCHAR(60)   NOT NULL,
+price      NUMERIC(12,2) NOT NULL CHECK (price >= 0),
+active     BOOLEAN       NOT NULL DEFAULT true,
+created_at TIMESTAMP     NOT NULL DEFAULT now(),
+CONSTRAINT uq_sale_template UNIQUE (product_id, name)
 );
 
--- Insertar los estados que tenías en el enum
-INSERT INTO order_status (code, description) VALUES
-('PENDING', 'Pendiente'),
-('CONFIRMED', 'Confirmado'),
-('SHIPPED', 'Enviado'),
-('DELIVERED', 'Entregado'),
-('CANCELLED', 'Cancelado');
-
--- Agregar la columna a orders
-ALTER TABLE orders ADD COLUMN order_status_id BIGINT REFERENCES order_status(id);
-
--- Si quieres un valor por defecto para órdenes existentes (PENDING = 1)
-UPDATE orders SET order_status_id = 1 WHERE order_status_id IS NULL;
-
-
-ALTER TABLE product_image
-ADD COLUMN resource_type VARCHAR(10) NOT NULL DEFAULT 'image';
-
-ALTER TABLE product_variant_image
-ADD COLUMN resource_type VARCHAR(10) NOT NULL DEFAULT 'image';
-
-ALTER TABLE orders
-ADD COLUMN description TEXT NULL;
-
-ALTER TABLE orders ADD COLUMN public_token VARCHAR(36) UNIQUE;
-ALTER TABLE orders ADD COLUMN expires_at TIMESTAMP;
-CREATE UNIQUE INDEX idx_orders_public_token ON orders(public_token);
-
-
-UPDATE order_item
-SET
-is_paid = CASE
-WHEN paid_quantity = 0 THEN FALSE
-ELSE TRUE
-END,
-is_separated = CASE
-WHEN separated_quantity = 0 THEN FALSE
-ELSE TRUE
-END,
-is_packed = CASE
-WHEN packed_quantity = 0 THEN FALSE
-ELSE TRUE
-END;
+CREATE TABLE sale_template_item (
+id          BIGSERIAL PRIMARY KEY,
+template_id BIGINT NOT NULL REFERENCES sale_template(id) ON DELETE CASCADE,
+variant_id  BIGINT NOT NULL REFERENCES product_variant(id),
+quantity    INT    NOT NULL CHECK (quantity > 0),
+CONSTRAINT uq_sale_template_item UNIQUE (template_id, variant_id)
+);
